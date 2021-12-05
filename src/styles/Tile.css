@@ -1,0 +1,48 @@
+#tile {
+  width: 100%;
+  background: #1a1a1a;
+  border-bottom: 1px solid #00c6c0;
+  display: grid;
+  grid-template-columns: 35% auto 35%;
+  align-items: center;
+}
+
+#price-container {
+  margin-left: 10%;
+  background: #353535;
+  padding: 10px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#goal-container {
+  padding: 20px;
+}
+.subtext {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.icons {
+  padding: 3px 10px;
+  align-items: center;
+  border-radius: 3%;
+}
+h2 {
+  margin: 0 10px 10px 10px;
+  font-family: "Playfair Display SC", serif;
+  color: white;
+}
+
+#notifybtn {
+  float: right;
+  background: #ff0057;
+  border: none;
+  color: #fff;
+  text-transform: uppercase;
+  padding: 10px;
+  margin-right: 30px;
+  cursor: pointer;
+  border-radius: 5%;
+}

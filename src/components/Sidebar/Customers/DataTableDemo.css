@@ -1,0 +1,31 @@
+/* DataTableDemo.css */
+
+.datatable-rowgroup-demo .p-rowgroup-footer td {
+  font-weight: 700;
+}
+
+.datatable-rowgroup-demo .p-rowgroup-header span {
+  font-weight: 700;
+}
+
+.datatable-rowgroup-demo .p-rowgroup-header .p-row-toggler {
+  vertical-align: middle;
+  margin-right: 0.25rem;
+}
+
+.ui-datatable tr.ui-datatable-even:hover,
+.ui-datatable tr.ui-datatable-odd:hover {
+  background: -moz-linear-gradient(
+      center top,
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0)
+    )
+    repeat scroll 0 0 #85b2cb;
+
+  box-shadow: 0 0 8px #85b2cb;
+}
+
+.card {
+  width: 98%;
+  margin: auto;
+}

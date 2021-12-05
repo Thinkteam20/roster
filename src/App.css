@@ -1,0 +1,269 @@
+:root {
+  /* Color */
+  --color-white: #ffffff;
+  --color-light-white: #eeeeee;
+  --color-dark-white: #bdbdbd;
+  --color-pink: #fe918d;
+  --color-dark-pink: #ff6863;
+  --color-dark-grey: #4d4d4d;
+  --color-grey: #616161;
+  --color-light-grey: #7c7979;
+  --color-blue: #004477;
+  --color-yellow: #fff7d1;
+  --color-orange: #feb546;
+  --color-black: #000000;
+
+  /* gradient color */
+  --color-purple: #555962;
+  --color-green: #4e8397;
+  --color-gradient: #0e101c;
+  --color-gradient2: #282c34;
+  --color-gradient3: #00c6c0;
+  --color-gradient4: #282c34;
+
+  /* Font size */
+  --font-large: 48px;
+  --font-medium: 28px;
+  --font-regular: 18px;
+  --font-small: 16px;
+  --font-micro: 14px;
+
+  /* Font weight */
+  --weight-bold: 700;
+  --weight-semi-bold: 600;
+  --weight-regular: 400;
+
+  /* Size */
+  --size-border-radius: 4px;
+
+  /* Animation */
+  --animation-duration: 300ms;
+  /* google fonts */
+  font-family: "Montserrat Alternates", sans-serif;
+  font-family: "Open Sans", sans-serif;
+  font-family: "Pacifico", cursive;
+  font-family: "Playfair Display SC", serif;
+}
+
+/* Typography */
+
+h1 {
+  font-family: "Pacifico", cursive;
+  font-size: var(--font-medium);
+  font-weight: var(--weight-bold);
+  color: #00c6c0;
+  margin: 0px 0px;
+  padding-top: 16px;
+}
+
+h2 {
+  font-size: var(--font-medium);
+  font-weight: var(--weight-semi-bold);
+  color: var(--color-black);
+  margin: 6px 0;
+}
+
+h3 {
+  font-size: var(--font-regular);
+  font-weight: var(--weight-regular);
+  color: var(--color-black);
+  margin: 8px 0;
+}
+
+p {
+  font-size: var(--font-regular);
+  font-weight: var(--weight-regular);
+  color: var(--color-white);
+  margin: 4px 0;
+}
+
+/* Universal tags */
+
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+  font-family: "Open Sans", sans-serif;
+  cursor: default;
+}
+.exp {
+  width: 100%;
+  margin: auto;
+  padding-bottom: 100px;
+}
+.ui-datatable tr.ui-datatable-even:hover,
+.ui-datatable tr.ui-datatable-odd:hover {
+  background: -moz-linear-gradient(
+      center top,
+      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0)
+    )
+    repeat scroll 0 0 #85b2cb;
+
+  box-shadow: 0 0 8px #85b2cb;
+}
+
+a {
+  text-decoration: none;
+  color: var(--color-black);
+}
+ul {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen,
+    Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
+  list-style: none;
+  padding-left: 0;
+}
+li {
+}
+/*font-family: 'Open Sans', sans-serif; - google font*/
+
+/* Section common  */
+.landing-section {
+  width: 100%;
+  text-align: center;
+  justify-content: flex;
+  padding: 0 0 0 0;
+}
+.landing-bottom {
+  background: url("../assets/dior.jpeg") center/cover no-repeat;
+  width: 100%;
+  height: 390px;
+  position: fixed;
+  bottom: 0;
+  border-radius: 3%;
+}
+.landing-divider {
+  padding-top: 15px;
+  display: flex;
+  height: 100%;
+  color: var(--color-light-white);
+}
+.divider__left {
+  flex-basis: 5%;
+  padding-top: 2rem;
+  background-color: #0e101c;
+}
+.divider__right {
+  margin-top: 80px;
+  flex-basis: 95%;
+}
+.remoters > ul > li {
+  padding-top: 1rem;
+  padding-bottom: 0.5rem;
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.section {
+  padding: 40px;
+  padding-top: 70px;
+  text-align: center;
+  margin: auto;
+}
+.section__container {
+  width: 100%;
+  height: 100vh;
+  margin: auto;
+}
+
+.Site-place {
+  margin-top: 40px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: var(--size-border-radius);
+}
+
+/* Branding top  */
+.branding-top {
+  position: fixed;
+  width: 100%;
+  background-color: #0e101c;
+  z-index: 1;
+  display: flex;
+}
+.branding-top__image {
+  background-color: #eeeeee;
+}
+.branding-top > h2 {
+  margin: 0;
+}
+
+/* Landing page */
+#landing {
+  /* background-image: url("../gradient.jpeg"); */
+  background-color: var(--color-gradient2);
+  background-image: linear-gradient(110deg, #0e101c 0%, var(--color-blue) 100%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 0 0 0 0;
+}
+.App-logo {
+  width: 100px;
+  height: 50px;
+  margin-top: 30px;
+}
+
+#topState {
+  position: fixed;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  background-color: black;
+  align-items: center;
+  color: var(--color-white);
+  z-index: 1;
+}
+
+/* buttons */
+.buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: 200px;
+  padding-left: 200px;
+}
+
+.emp-table {
+  color: white;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+table {
+  border-collapse: collapse;
+  width: 80%;
+}
+
+th,
+td {
+  border: "1px solid white";
+  border-bottom: 0.1px solid white;
+  padding: 5px 0;
+}
+
+/* add emp */
+#emp-landing {
+  /* background-image: url("../gradient.jpeg"); */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  padding: 0 0 0 0;
+}
+.ui-widget-content.ui-datatable-odd,
+tr.ui-widget-content.ui-datatable-even:hover {
+  background-color: grey;
+}
+@media screen and (max-height: 800px) {
+  .landing-bottom {
+    background: url("../assets/dior.jpeg") center/cover no-repeat;
+    width: 100%;
+    height: 320px;
+    position: fixed;
+    bottom: 0;
+    border-radius: 3%;
+  }
+}

@@ -1,0 +1,741 @@
+import React, { useState, useEffect, useRef } from "react";
+import { ipcRenderer } from "electron";
+import { classNames } from "primereact/utils";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
+import { Toast } from "primereact/toast";
+import { Button } from "primereact/button";
+import { FileUpload } from "primereact/fileupload";
+import { Rating } from "primereact/rating";
+import { Toolbar } from "primereact/toolbar";
+import { InputTextarea } from "primereact/inputtextarea";
+import { RadioButton } from "primereact/radiobutton";
+import { InputNumber } from "primereact/inputnumber";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
+import "./DataTableDemo.css";
+import HeaderTile from "../../Morecules/HeaderTile.js";
+import "../../../App.css";
+// import sendAsync from "../../../message-control/renderer.js";
+// import addTable from "../../../message-control/addEmp.js";
+// import addValueAsync from "../../../message-control/addValue.js";
+
+function RegEmp() {
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState();
+  const componentMounted = useRef(true);
+  const [dataNumber, setDatanNumber] = useState();
+
+  useEffect(() => {
+    ipcRenderer.send("logs:load");
+    ipcRenderer.on("logs:get", (e, logs) => {
+      console.log("get data from Mongo db");
+      setResponse(JSON.parse(logs));
+    });
+  }, []);
+
+  let employ = {
+    id: "5555",
+    name: "Bracelet",
+    role: "Mop",
+    time: "2021-11-23T12:30:00Z",
+    description:
+      "Product Description Product Description Product Description Product Description",
+    wage: 15,
+    site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
+    quantity: 73,
+  };
+  // console.log(Object.keys(employ).length);
+
+  let testlogs = {
+    text: "",
+    priority: "",
+    user: "",
+    time: null,
+  };
+
+  let testlogsData = {
+    text: "test mongo db",
+    priority: "one",
+    user: "Roy",
+    time: null,
+  };
+
+  let emptyProduct = {
+    id: null,
+    name: "",
+    role: null,
+    description: "",
+    time: "",
+    site: null,
+    wage: 0,
+    quantity: 0,
+    rating: 0,
+    inventoryStatus: "INSTOCK",
+  };
+
+  const [products, setProducts] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [log, setLog] = useState(testlogs);
+  const [productDialog, setProductDialog] = useState(false);
+  const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+  const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
+  const [product, setProduct] = useState(emptyProduct);
+  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState(null);
+  const [worksite, setWorksites] = useState(null);
+  const toast = useRef(null);
+  const dt = useRef(null);
+
+  const sites = [
+    { name: "Burberry - CBD Queens Plaza" },
+    { name: "Bvlgari - CBD Queens Plaza" },
+    { name: "Chanel - CBD Queens Plaza" },
+    { name: "Chanel - Westfield Carindale" },
+    { name: "Gucci - CBD Brisbane Fashion Boutique" },
+    { name: "Gucci - CBD Brisbane Watches & Jewelleries" },
+    { name: "Longchamp - CBD Tattersall Arcade" },
+    { name: "Louis Vuitton - CBD Queens Plaza" },
+    { name: "Paspaley - CBD Queens Plaza" },
+    { name: "Tag Heuer - CBD MacArthur Central Shopping Centre" },
+    { name: "The Hour Glass - CBD Edward Street" },
+    { name: "Yves Saint Laurent - CBD Queens Plaza" },
+  ];
+  const formatCurrency = (value) => {
+    return value;
+  };
+
+  const openNew = () => {
+    setProduct(emptyProduct);
+    setSubmitted(false);
+    setProductDialog(true);
+  };
+
+  const hideDialog = () => {
+    setSubmitted(false);
+    setProductDialog(false);
+  };
+
+  const hideDeleteProductDialog = () => {
+    setDeleteProductDialog(false);
+  };
+
+  const hideDeleteProductsDialog = () => {
+    setDeleteProductsDialog(false);
+  };
+
+  const saveProduct = () => {
+    setSubmitted(true);
+
+    if (product.name.trim()) {
+      let _products = [...products];
+      let _product = { ...product };
+      if (product.id) {
+        const index = findIndexById(product.id);
+
+        _products[index] = _product;
+        ipcRenderer.send("logs:emp", _products);
+        // console.log(_products);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Updated",
+          life: 3000,
+        });
+      } else {
+        _product.id = createId();
+        _product.image = "product-placeholder.svg";
+        _products.push(_product);
+        // console.log(_products);
+        ipcRenderer.send("logs:emp", _products);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Product Created",
+          life: 3000,
+        });
+      }
+
+      setProducts(_products);
+      setProductDialog(false);
+      setProduct(emptyProduct);
+    }
+  };
+
+  const editProduct = (product) => {
+    setProduct({ ...product });
+    setProductDialog(true);
+  };
+
+  const confirmDeleteProduct = (product) => {
+    setProduct(product);
+    setDeleteProductDialog(true);
+  };
+
+  const deleteProduct = () => {
+    let _products = products.filter((val) => val.id !== product.id);
+    setProducts(_products);
+    setDeleteProductDialog(false);
+    setProduct(emptyProduct);
+    toast.current.show({
+      severity: "success",
+      summary: "Successful",
+      detail: "Product Deleted",
+      life: 3000,
+    });
+  };
+
+  const findIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < products.length; i++) {
+      if (products[i].id === id) {
+        index = i;
+        break;
+      }
+    }
+
+    return index;
+  };
+
+  const createId = () => {
+    let id = "";
+    let chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 5; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
+  };
+
+  const importCSV = (e) => {
+    const file = e.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csv = e.target.result;
+      const data = csv.split("\n");
+
+      // Prepare DataTable
+      const cols = data[0].replace(/['"]+/g, "").split(",");
+      data.shift();
+
+      const importedData = data.map((d) => {
+        d = d.split(",");
+        const processedData = cols.reduce((obj, c, i) => {
+          c =
+            c === "Status"
+              ? "inventoryStatus"
+              : c === "Reviews"
+              ? "rating"
+              : c.toLowerCase();
+          obj[c] = d[i].replace(/['"]+/g, "");
+          (c === "price" || c === "rating") && (obj[c] = parseFloat(obj[c]));
+          return obj;
+        }, {});
+
+        processedData["id"] = createId();
+        return processedData;
+      });
+
+      const _products = [...products, ...importedData];
+
+      setProducts(_products);
+    };
+
+    reader.readAsText(file, "UTF-8");
+  };
+
+  const exportCSV = () => {
+    dt.current.exportCSV();
+  };
+
+  const confirmDeleteSelected = () => {
+    setDeleteProductsDialog(true);
+  };
+
+  const deleteSelectedProducts = () => {
+    let _products = products.filter((val) => !selectedProducts.includes(val));
+    setProducts(_products);
+    setDeleteProductsDialog(false);
+    setSelectedProducts(null);
+    toast.current.show({
+      severity: "success",
+      summary: "Successful",
+      detail: "Products Deleted",
+      life: 3000,
+    });
+  };
+
+  const onCategoryChange = (e) => {
+    let _product = { ...product };
+    _product["role"] = e.value;
+    setProduct(_product);
+  };
+
+  const onTimeChange = (e) => {
+    let _product = { ...product };
+    _product["time"] = e.target.value;
+    setProduct(_product);
+  };
+
+  const onInputChange = (e, name) => {
+    const val = (e.target && e.target.value) || "";
+    let _product = { ...product };
+    _product[`${name}`] = val;
+
+    setProduct(_product);
+  };
+
+  const onInputNumberChange = (e, name) => {
+    const val = e.value || 0;
+    let _product = { ...product };
+    _product[`${name}`] = val;
+
+    setProduct(_product);
+  };
+
+  const leftToolbarTemplate = () => {
+    return (
+      <React.Fragment>
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          className="p-button-success p-mr-2"
+          onClick={openNew}
+        />
+        <Button
+          label="Delete"
+          icon="pi pi-trash"
+          className="p-button-danger"
+          onClick={confirmDeleteSelected}
+          disabled={!selectedProducts || !selectedProducts.length}
+        />
+      </React.Fragment>
+    );
+  };
+
+  const rightToolbarTemplate = () => {
+    return (
+      <React.Fragment>
+        <FileUpload
+          mode="basic"
+          name="demo[]"
+          auto
+          url="https://primefaces.org/primereact/showcase/upload.php"
+          accept=".csv"
+          chooseLabel="Import"
+          className="p-mr-2 p-d-inline-block"
+          onUpload={importCSV}
+        />
+        <Button
+          label="Export"
+          icon="pi pi-upload"
+          className="p-button-help"
+          onClick={exportCSV}
+        />
+      </React.Fragment>
+    );
+  };
+  function ProductTable() {
+    if (products && products.length) {
+      return (
+        <DataTable
+          ref={dt}
+          value={products}
+          selection={selectedProducts}
+          onSelectionChange={(e) => setSelectedProducts(e.value)}
+          dataKey="id"
+          paginator
+          rows={10}
+          rowsPerPageOptions={[5, 10, 25]}
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+          globalFilter={globalFilter}
+          header={header}
+          responsiveLayout="scroll"
+        >
+          <Column
+            selectionMode="multiple"
+            headerStyle={{ width: "3rem" }}
+            exportable={false}
+          ></Column>
+
+          <Column
+            field="id"
+            header="Id"
+            sortable
+            style={{ minWidth: "12rem" }}
+          ></Column>
+
+          <Column
+            field="name"
+            header="Name"
+            sortable
+            style={{ minWidth: "11rem" }}
+          ></Column>
+
+          <Column
+            field="time"
+            header="Time"
+            sortable
+            style={{ minWidth: "11rem" }}
+          ></Column>
+
+          <Column
+            field="role"
+            header="Role"
+            body={priceBodyTemplate}
+            sortable
+            style={{ minWidth: "8rem" }}
+          ></Column>
+
+          <Column
+            field="site"
+            header="Site"
+            sortable
+            style={{ minWidth: "10rem" }}
+          ></Column>
+
+          <Column
+            field="description"
+            header="Description"
+            body={statusBodyTemplate}
+            sortable
+            style={{ minWidth: "12rem" }}
+          ></Column>
+
+          <Column
+            body={actionBodyTemplate}
+            exportable={false}
+            style={{ minWidth: "8rem" }}
+          ></Column>
+        </DataTable>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  const imageBodyTemplate = (rowData) => {
+    return (
+      <img
+        src={`showcase/demo/images/product/${rowData.image}`}
+        onError={(e) =>
+          (e.target.src =
+            "https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png")
+        }
+        alt={rowData.image}
+        className="product-image"
+      />
+    );
+  };
+
+  const onSitesChange = (e) => {
+    setWorksites(e.value);
+    let _product = { ...product };
+    _product["site"] = e.value["name"];
+    setProduct(_product);
+  };
+
+  const priceBodyTemplate = (rowData) => {
+    return formatCurrency(rowData.role);
+  };
+
+  const ratingBodyTemplate = (rowData) => {
+    return <Rating value={rowData.rating} readOnly cancel={false} />;
+  };
+
+  const statusBodyTemplate = (rowData) => {
+    return (
+      <span
+        className={`product-badge status-${rowData.description.toLowerCase()}`}
+      >
+        {rowData.description}
+      </span>
+    );
+  };
+
+  const actionBodyTemplate = (rowData) => {
+    return (
+      <React.Fragment>
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-rounded p-button-success p-mr-2"
+          onClick={() => editProduct(rowData)}
+        />
+        <Button
+          icon="pi pi-trash"
+          className="p-button-rounded p-button-warning"
+          onClick={() => confirmDeleteProduct(rowData)}
+        />
+      </React.Fragment>
+    );
+  };
+
+  const header = (
+    <div className="table-header">
+      <h5 className="p-mx-0 p-my-1">Manage Employees</h5>
+      <span className="p-input-icon-left">
+        <i className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+        />
+      </span>
+    </div>
+  );
+  const productDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideDialog}
+      />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={saveProduct}
+      />
+    </React.Fragment>
+  );
+  const deleteProductDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideDeleteProductDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={deleteProduct}
+      />
+    </React.Fragment>
+  );
+  const deleteProductsDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideDeleteProductsDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={deleteSelectedProducts}
+      />
+    </React.Fragment>
+  );
+
+  return (
+    <section id="emp-landing" className="section section__container">
+      <HeaderTile tileTitle="ADD EMPLOYEES" tileName="직원 현황판" />
+      <h1>Employees</h1>
+      <div className="emp-table">
+        <div className="datatable-crud-demo">
+          <Toast ref={toast} />
+          <div className="card">
+            <Toolbar
+              className="p-mb-4"
+              left={leftToolbarTemplate}
+              right={rightToolbarTemplate}
+            ></Toolbar>
+          </div>
+          <ProductTable />
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header="Register Employee"
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="p-field">
+              <label htmlFor="name">Name</label>
+              <InputText
+                id="name"
+                value={product.name}
+                onChange={(e) => onInputChange(e, "name")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !product.name,
+                })}
+              />
+              {submitted && !product.name && (
+                <small className="p-error">Name is required.</small>
+              )}
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="description">Description</label>
+              <InputTextarea
+                id="description"
+                value={product.description}
+                onChange={(e) => onInputChange(e, "description")}
+                required
+                rows={3}
+                cols={20}
+              />
+            </div>
+
+            <div className="p-field">
+              <label className="p-mb-3">Role</label>
+              <div className="p-formgrid p-grid">
+                <div className="p-field-radiobutton p-col-6">
+                  <RadioButton
+                    inputId="category1"
+                    name="category"
+                    value="Mop"
+                    onChange={onCategoryChange}
+                    checked={product.role === "Mop"}
+                  />
+                  <label htmlFor="category1">Mop</label>
+                </div>
+                <div className="p-field-radiobutton p-col-6">
+                  <RadioButton
+                    inputId="category2"
+                    name="category"
+                    value="Vacumme"
+                    onChange={onCategoryChange}
+                    checked={product.role === "Vacumme"}
+                  />
+                  <label htmlFor="category2">Vacumme</label>
+                </div>
+                <div className="p-field-radiobutton p-col-6">
+                  <RadioButton
+                    inputId="category3"
+                    name="category"
+                    value="Dusting"
+                    onChange={onCategoryChange}
+                    checked={product.role === "Dusting"}
+                  />
+                  <label htmlFor="category3">Dusting</label>
+                </div>
+                <div className="p-field-radiobutton p-col-6">
+                  <RadioButton
+                    inputId="category4"
+                    name="category"
+                    value="Vacuum & Mop"
+                    onChange={onCategoryChange}
+                    checked={product.role === "Vacuum & Mop"}
+                  />
+                  <label htmlFor="category4">Vacuum & Mop</label>
+                </div>
+                <div className="p-field-radiobutton p-col-6">
+                  <RadioButton
+                    inputId="category5"
+                    name="category"
+                    value="Dusting/Office"
+                    onChange={onCategoryChange}
+                    checked={product.role === "Dusting/Office"}
+                  />
+                  <label htmlFor="category5">Dusting/Office</label>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="category5">Dusting/Office</label>
+              <input type="datetime-local" onChange={onTimeChange} />
+            </div>
+
+            <div className="p-formgrid p-grid">
+              <div className="p-field p-col">
+                <label htmlFor="price">Wage</label>
+                <InputNumber
+                  id="wage"
+                  value={product.wage}
+                  onValueChange={(e) => onInputNumberChange(e, "wage")}
+                  mode="currency"
+                  currency="USD"
+                  locale="en-US"
+                />
+              </div>
+              <div className="p-field p-col">
+                <label htmlFor="quantity">Quantity</label>
+                <InputNumber
+                  id="quantity"
+                  value={product.quantity}
+                  onValueChange={(e) => onInputNumberChange(e, "quantity")}
+                  integeronly
+                />
+              </div>
+              <div className="p-field p-col">
+                <label htmlFor="quantity">Site</label>
+                <Dropdown
+                  value={worksite}
+                  options={sites}
+                  onChange={onSitesChange}
+                  optionLabel="name"
+                  placeholder="Select Sites"
+                />
+              </div>
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={deleteProductDialog}
+            style={{ width: "450px" }}
+            header="Confirm"
+            modal
+            footer={deleteProductDialogFooter}
+            onHide={hideDeleteProductDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle p-mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {product && (
+                <span>
+                  Are you sure you want to delete <b>{product.name}</b>?
+                </span>
+              )}
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={deleteProductsDialog}
+            style={{ width: "450px" }}
+            header="Confirm"
+            modal
+            footer={deleteProductsDialogFooter}
+            onHide={hideDeleteProductsDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle p-mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {product && (
+                <span>
+                  Are you sure you want to delete the selected products?
+                </span>
+              )}
+            </div>
+          </Dialog>
+        </div>
+      </div>
+      <div>
+        <h1>testing db</h1>
+        <header className="App-header"></header>
+        <h3 className={loading ? "loading" : ""}>
+          {(response && JSON.stringify(response, null, 2)) ||
+            "No query results yet!"}
+        </h3>
+      </div>
+    </section>
+  );
+}
+
+export default RegEmp;
