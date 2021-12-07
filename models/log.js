@@ -5,12 +5,12 @@ const LogSchema = new mongoose.Schema({
   name: { type: String },
   role: { type: String },
   description: { type: String },
-  time: { type: String },
+  start: { type: String },
+  end: { type: String },
+  site: { type: String },
   wage: { type: Number },
   quantity: { type: Number },
-  rating: { type: Number },
   inventoryStatus: { type: String },
-  image: { type: String },
 });
 
 module.exports = mongoose.model("Log", LogSchema);

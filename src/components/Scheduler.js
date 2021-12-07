@@ -3,8 +3,10 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import timeGridPlugin from "@fullcalendar/timegrid";
 import resourceTimelinePlugin from "@fullcalendar/resource-timeline";
+import resourceTimeline from "@fullcalendar/resource-timeline";
 import resourceTimeGridPlugin from "@fullcalendar/resource-timegrid";
 import adaptivePlugin from "@fullcalendar/adaptive";
+import interaction from "@fullcalendar/interaction";
 import "../styles/Scheduler.css";
 import getEvents from "../Data/Event.js";
 
@@ -53,6 +55,8 @@ function Scheduler() {
     <FullCalendar
       height="650px"
       schedulerLicenseKey="CC-Attribution-NonCommercial-NoDerivatives"
+      weekNumberCalculation="ISO"
+      timeZone="UTC"
       ref={calenderRef}
       plugins={[
         dayGridPlugin,
@@ -61,28 +65,34 @@ function Scheduler() {
         adaptivePlugin,
         resourceTimeGridPlugin,
       ]}
-      initialView="resourceTimeGridDay"
+      initialView="resourceTimeline"
       resourceGroupField="site"
       resources={resourcesCol}
       customButtons={{
-        myTimeLineDayBtn: {
-          text: "Day",
+        iffice: {
+          text: "Iffice",
+          views: {
+            week: {
+              type: "agenda",
+              duration: { days: 7 },
+              groupByResource: true,
+            },
+          },
           click() {
             const calender = calenderRef.current;
-
             if (calender) {
               const calenderApi = calender.getApi();
-              calenderApi.changeView("resourceTimelineDay");
+              calenderApi.changeView("resourceTimeline");
             }
           },
         },
       }}
-      timeZone="UTC"
+      editable="true"
       events={getEvents}
       headerToolbar={{
         left: "prev next",
         center: "title",
-        right: "dayGridMonth,timeGridWeek,myTimeLineDayBtn,resourceTimeGridDay",
+        right: "timeGridWeek,resourceTimeGridDay,iffice",
       }}
     />
   );

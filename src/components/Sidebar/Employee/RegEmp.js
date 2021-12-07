@@ -23,30 +23,8 @@ import "../../../App.css";
 
 function RegEmp() {
   const [loading, setLoading] = useState(false);
-  const [response, setResponse] = useState();
-  const componentMounted = useRef(true);
+  const [response, setResponse] = useState([]);
   const [dataNumber, setDatanNumber] = useState();
-
-  useEffect(() => {
-    ipcRenderer.send("logs:load");
-    ipcRenderer.on("logs:get", (e, logs) => {
-      console.log("get data from Mongo db");
-      setResponse(JSON.parse(logs));
-    });
-  }, []);
-
-  let employ = {
-    id: "5555",
-    name: "Bracelet",
-    role: "Mop",
-    time: "2021-11-23T12:30:00Z",
-    description:
-      "Product Description Product Description Product Description Product Description",
-    wage: 15,
-    site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
-    quantity: 73,
-  };
-  // console.log(Object.keys(employ).length);
 
   let testlogs = {
     text: "",
@@ -55,19 +33,13 @@ function RegEmp() {
     time: null,
   };
 
-  let testlogsData = {
-    text: "test mongo db",
-    priority: "one",
-    user: "Roy",
-    time: null,
-  };
-
   let emptyProduct = {
     id: null,
     name: "",
     role: null,
     description: "",
-    time: "",
+    start: "",
+    end: "",
     site: null,
     wage: 0,
     quantity: 0,
@@ -88,6 +60,16 @@ function RegEmp() {
   const [worksite, setWorksites] = useState(null);
   const toast = useRef(null);
   const dt = useRef(null);
+
+  useEffect(() => {
+    ipcRenderer.send("logs:load");
+    ipcRenderer.on("logs:get", (e, logs) => {
+      console.log("get data from Mongo db");
+      // console.log(logs);
+      // setProducts(logs);
+      setProducts(JSON.parse(logs));
+    });
+  }, []);
 
   const sites = [
     { name: "Burberry - CBD Queens Plaza" },
@@ -132,12 +114,14 @@ function RegEmp() {
     if (product.name.trim()) {
       let _products = [...products];
       let _product = { ...product };
+      // console.log(_product);
+      let _deleteTarget = product.id;
       if (product.id) {
         const index = findIndexById(product.id);
-
         _products[index] = _product;
-        ipcRenderer.send("logs:emp", _products);
-        // console.log(_products);
+        // console.log(_deleteTarget);
+        ipcRenderer.send("logs:update", _deleteTarget, _product);
+        setProducts(_products);
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -146,10 +130,10 @@ function RegEmp() {
         });
       } else {
         _product.id = createId();
-        _product.image = "product-placeholder.svg";
+        // _product.image = "product-placeholder.svg";
         _products.push(_product);
-        // console.log(_products);
         ipcRenderer.send("logs:emp", _products);
+        setProducts(_products);
         toast.current.show({
           severity: "success",
           summary: "Successful",
@@ -157,7 +141,6 @@ function RegEmp() {
           life: 3000,
         });
       }
-
       setProducts(_products);
       setProductDialog(false);
       setProduct(emptyProduct);
@@ -165,17 +148,23 @@ function RegEmp() {
   };
 
   const editProduct = (product) => {
+    console.log(product);
     setProduct({ ...product });
     setProductDialog(true);
   };
 
   const confirmDeleteProduct = (product) => {
+    // console.log(product);
     setProduct(product);
     setDeleteProductDialog(true);
   };
 
   const deleteProduct = () => {
     let _products = products.filter((val) => val.id !== product.id);
+    let _selected = products.filter((val) => val.name === product.name);
+    let deleteTarget = product.id;
+    console.log(deleteTarget);
+    ipcRenderer.send("logs:delete", deleteTarget);
     setProducts(_products);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
@@ -376,8 +365,15 @@ function RegEmp() {
           ></Column>
 
           <Column
-            field="time"
-            header="Time"
+            field="start"
+            header="Start"
+            sortable
+            style={{ minWidth: "11rem" }}
+          ></Column>
+
+          <Column
+            field="end"
+            header="End"
             sortable
             style={{ minWidth: "11rem" }}
           ></Column>
@@ -417,18 +413,16 @@ function RegEmp() {
     }
   }
 
-  const imageBodyTemplate = (rowData) => {
-    return (
-      <img
-        src={`showcase/demo/images/product/${rowData.image}`}
-        onError={(e) =>
-          (e.target.src =
-            "https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png")
-        }
-        alt={rowData.image}
-        className="product-image"
-      />
-    );
+  const onTimeStartChange = (e) => {
+    let _product = { ...product };
+    _product["start"] = e.target.value;
+    setProduct(_product);
+  };
+
+  const onTimeEndChange = (e) => {
+    let _product = { ...product };
+    _product["end"] = e.target.value;
+    setProduct(_product);
   };
 
   const onSitesChange = (e) => {
@@ -645,8 +639,13 @@ function RegEmp() {
             </div>
 
             <div className="p-field">
-              <label htmlFor="category5">Dusting/Office</label>
-              <input type="datetime-local" onChange={onTimeChange} />
+              <label htmlFor="category5">Start Time</label>
+              <input type="datetime-local" onChange={onTimeStartChange} />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="category5">End Time</label>
+              <input type="datetime-local" onChange={onTimeEndChange} />
             </div>
 
             <div className="p-formgrid p-grid">
@@ -730,7 +729,7 @@ function RegEmp() {
         <h1>testing db</h1>
         <header className="App-header"></header>
         <h3 className={loading ? "loading" : ""}>
-          {(response && JSON.stringify(response, null, 2)) ||
+          {(response && JSON.stringify(products, null, 2)) ||
             "No query results yet!"}
         </h3>
       </div>

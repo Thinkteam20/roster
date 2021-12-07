@@ -94,6 +94,25 @@ ipcMain.on("logs:emp", async (e, item) => {
     console.log(err);
   }
 });
+// delete emp
+ipcMain.on("logs:delete", async (e, _id) => {
+  try {
+    console.log(_id);
+    await Log.findOneAndDelete({ id: _id });
+  } catch (err) {
+    console.log(err);
+  }
+});
+// update emp
+ipcMain.on("logs:update", async (e, _deleteTarget, updated) => {
+  try {
+    console.log(`delete target id is `, _deleteTarget);
+    console.log(`new updates details`, updated);
+    await Log.findOneAndUpdate({ id: _deleteTarget }, updated);
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
