@@ -1,305 +1,632 @@
 import React, { useState, useEffect, useRef } from "react";
+import { ipcRenderer } from "electron";
+import { classNames } from "primereact/utils";
 import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import { Toast } from "primereact/toast";
-import { CustomerService } from "./CustomerService.js";
+import { Button } from "primereact/button";
+import { FileUpload } from "primereact/fileupload";
+import { Rating } from "primereact/rating";
+import { Toolbar } from "primereact/toolbar";
+import { InputTextarea } from "primereact/inputtextarea";
+import { RadioButton } from "primereact/radiobutton";
+import { InputNumber } from "primereact/inputnumber";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
 import "./DataTableDemo.css";
-import HeaderTile from "../../Morecules/HeaderTile";
+import HeaderTile from "../../Morecules/HeaderTile.js";
+import "../../../App.css";
+import "./DataTableDemo.css";
+// import sendAsync from "../../../message-control/renderer.js";
+// import addTable from "../../../message-control/addEmp.js";
+// import addValueAsync from "../../../message-control/addValue.js";
 
 function RegCus() {
-  const [customers, setCustomers] = useState([
-    {
-      id: 1000,
-      name: "James Butt",
-      country: {
-        name: "Algeria",
-        code: "dz",
-      },
-      company: "Benton, John B Jr",
-      date: "2015-09-13",
-      status: "unqualified",
-      verified: true,
-      activity: 17,
-      representative: {
-        name: "Ioni Bowcher",
-        image: "ionibowcher.png",
-      },
-      balance: 70663,
-    },
-    {
-      id: 1001,
-      name: "Josephine Darakjy",
-      country: {
-        name: "Egypt",
-        code: "eg",
-      },
-      company: "Chanay, Jeffrey A Esq",
-      date: "2019-02-09",
-      status: "proposal",
-      verified: true,
-      activity: 0,
-      representative: {
-        name: "Amy Elsner",
-        image: "amyelsner.png",
-      },
-      balance: 82429,
-    },
-    {
-      id: 1002,
-      name: "Art Venere",
-      country: {
-        name: "Panama",
-        code: "pa",
-      },
-      company: "Chemel, James L Cpa",
-      date: "2017-05-13",
-      status: "qualified",
-      verified: false,
-      activity: 63,
-      representative: {
-        name: "Asiya Javayant",
-        image: "asiyajavayant.png",
-      },
-      balance: 28334,
-    },
-    {
-      id: 1003,
-      name: "Lenna Paprocki",
-      country: {
-        name: "Slovenia",
-        code: "si",
-      },
-      company: "Feltz Printing Service",
-      date: "2020-09-15",
-      status: "new",
-      verified: false,
-      activity: 37,
-      representative: {
-        name: "Xuxue Feng",
-        image: "xuxuefeng.png",
-      },
-      balance: 88521,
-    },
-    {
-      id: 1004,
-      name: "Donette Foller",
-      country: {
-        name: "South Africa",
-        code: "za",
-      },
-      company: "Printing Dimensions",
-      date: "2016-05-20",
-      status: "proposal",
-      verified: true,
-      activity: 33,
-      representative: {
-        name: "Asiya Javayant",
-        image: "asiyajavayant.png",
-      },
-      balance: 93905,
-    },
-    {
-      id: 1005,
-      name: "Simona Morasca",
-      country: {
-        name: "Egypt",
-        code: "eg",
-      },
-      company: "Chapman, Ross E Esq",
-      date: "2018-02-16",
-      status: "qualified",
-      verified: false,
-      activity: 68,
-      representative: {
-        name: "Ivan Magalhaes",
-        image: "ivanmagalhaes.png",
-      },
-      balance: 50041,
-    },
-    {
-      id: 1006,
-      name: "Mitsue Tollner",
-      country: {
-        name: "Paraguay",
-        code: "py",
-      },
-      company: "Morlong Associates",
-      date: "2018-02-19",
-      status: "renewal",
-      verified: true,
-      activity: 54,
-      representative: {
-        name: "Ivan Magalhaes",
-        image: "ivanmagalhaes.png",
-      },
-      balance: 58706,
-    },
-    {
-      id: 1007,
-      name: "Leota Dilliard",
-      country: {
-        name: "Serbia",
-        code: "rs",
-      },
-      company: "Commercial Press",
-      date: "2019-08-13",
-      status: "renewal",
-      verified: true,
-      activity: 69,
-      representative: {
-        name: "Onyama Limba",
-        image: "onyamalimba.png",
-      },
-      balance: 26640,
-    },
-  ]);
-  const [expandedRows, setExpandedRows] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState([]);
+  const [dataNumber, setDatanNumber] = useState();
+
+  let testlogs = {
+    text: "",
+    priority: "",
+    user: "",
+    time: null,
+  };
+
+  let emptyProduct = {
+    groupId: "null",
+    title: "",
+    start: "",
+    end: "",
+    backgroundColor: "",
+  };
+
+  const [products, setProducts] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [log, setLog] = useState(testlogs);
+  const [productDialog, setProductDialog] = useState(false);
+  const [deleteProductDialog, setDeleteProductDialog] = useState(false);
+  const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
+  const [product, setProduct] = useState(emptyProduct);
+  const [selectedProducts, setSelectedProducts] = useState(null);
+  const [submitted, setSubmitted] = useState(false);
+  const [globalFilter, setGlobalFilter] = useState(null);
+  const [worksite, setWorksites] = useState(null);
   const toast = useRef(null);
-  const customerService = new CustomerService();
+  const dt = useRef(null);
 
   useEffect(() => {
-    customerService.getCustomersMedium().then((data) => setCustomers(data));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    ipcRenderer.send("cusb:load");
+    ipcRenderer.on("cusb:get", (e, logs) => {
+      console.log("get data from Mongo db");
+      // console.log(logs);
+      // setProducts(logs);
+      setLogs(JSON.parse(logs));
+    });
+  }, []);
 
-  const headerTemplate = (data) => {
-    return (
-      <React.Fragment>
-        <span className="image-text">{data.representative.name}</span>
-      </React.Fragment>
-    );
+  const sites = [
+    { name: "Burberry - CBD Queens Plaza" },
+    { name: "Bvlgari - CBD Queens Plaza" },
+    { name: "Chanel - CBD Queens Plaza" },
+    { name: "Chanel - Westfield Carindale" },
+    { name: "Gucci - CBD Brisbane Fashion Boutique" },
+    { name: "Gucci - CBD Brisbane Watches & Jewelleries" },
+    { name: "Longchamp - CBD Tattersall Arcade" },
+    { name: "Louis Vuitton - CBD Queens Plaza" },
+    { name: "Paspaley - CBD Queens Plaza" },
+    { name: "Tag Heuer - CBD MacArthur Central Shopping Centre" },
+    { name: "The Hour Glass - CBD Edward Street" },
+    { name: "Yves Saint Laurent - CBD Queens Plaza" },
+  ];
+  const formatCurrency = (value) => {
+    return value;
   };
 
-  const footerTemplate = (data) => {
-    return (
-      <React.Fragment>
-        <td colSpan="4" style={{ textAlign: "right" }}>
-          Total Customers
-        </td>
-        <td>{calculateCustomerTotal(data.representative.name)}</td>
-      </React.Fragment>
-    );
+  const openNew = () => {
+    setProduct(emptyProduct);
+    setSubmitted(false);
+    setProductDialog(true);
   };
 
-  const countryBodyTemplate = (rowData) => {
+  const hideDialog = () => {
+    setSubmitted(false);
+    setProductDialog(false);
+  };
+
+  const hideDeleteProductDialog = () => {
+    setDeleteProductDialog(false);
+  };
+
+  const hideDeleteProductsDialog = () => {
+    setDeleteProductsDialog(false);
+  };
+
+  const saveProduct = () => {
+    setSubmitted(true);
+    ipcRenderer.send("cusb:add", product);
+    setLogs(product);
+    toast.current.show({
+      severity: "success",
+      summary: "Successful",
+      detail: "Product Created",
+      life: 3000,
+    });
+    setProductDialog(false);
+    setProduct(emptyProduct);
+  };
+
+  const editProduct = (product) => {
+    console.log(product);
+    setProduct({ ...product });
+    setProductDialog(true);
+  };
+
+  const confirmDeleteProduct = (product) => {
+    // console.log(product);
+    setProduct(product);
+    setDeleteProductDialog(true);
+  };
+
+  const deleteProduct = () => {
+    let _products = products.filter((val) => val.id !== product.id);
+    let _selected = products.filter((val) => val.name === product.name);
+    let deleteTarget = product.id;
+    console.log(deleteTarget);
+    ipcRenderer.send("logs:delete", deleteTarget);
+    setProducts(_products);
+    setDeleteProductDialog(false);
+    setProduct(emptyProduct);
+    toast.current.show({
+      severity: "success",
+      summary: "Successful",
+      detail: "Product Deleted",
+      life: 3000,
+    });
+  };
+
+  const findIndexById = (id) => {
+    let index = -1;
+    for (let i = 0; i < products.length; i++) {
+      if (products[i].id === id) {
+        index = i;
+        break;
+      }
+    }
+
+    return index;
+  };
+
+  const createId = () => {
+    let id = "";
+    let chars =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    for (let i = 0; i < 5; i++) {
+      id += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return id;
+  };
+
+  const importCSV = (e) => {
+    const file = e.files[0];
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const csv = e.target.result;
+      const data = csv.split("\n");
+
+      // Prepare DataTable
+      const cols = data[0].replace(/['"]+/g, "").split(",");
+      data.shift();
+
+      const importedData = data.map((d) => {
+        d = d.split(",");
+        const processedData = cols.reduce((obj, c, i) => {
+          c =
+            c === "Status"
+              ? "inventoryStatus"
+              : c === "Reviews"
+              ? "rating"
+              : c.toLowerCase();
+          obj[c] = d[i].replace(/['"]+/g, "");
+          (c === "price" || c === "rating") && (obj[c] = parseFloat(obj[c]));
+          return obj;
+        }, {});
+
+        processedData["id"] = createId();
+        return processedData;
+      });
+
+      const _products = [...products, ...importedData];
+
+      setProducts(_products);
+    };
+
+    reader.readAsText(file, "UTF-8");
+  };
+
+  const exportCSV = () => {
+    dt.current.exportCSV();
+  };
+
+  const confirmDeleteSelected = () => {
+    setDeleteProductsDialog(true);
+  };
+
+  const deleteSelectedProducts = () => {
+    let _products = products.filter((val) => !selectedProducts.includes(val));
+    setProducts(_products);
+    setDeleteProductsDialog(false);
+    setSelectedProducts(null);
+    toast.current.show({
+      severity: "success",
+      summary: "Successful",
+      detail: "Products Deleted",
+      life: 3000,
+    });
+  };
+
+  const onCategoryChange = (e) => {
+    let _product = { ...product };
+    _product["role"] = e.value;
+    setProduct(_product);
+  };
+
+  const onTimeChange = (e) => {
+    let _product = { ...product };
+    _product["time"] = e.target.value;
+    setProduct(_product);
+  };
+
+  const onInputChange = (e, name) => {
+    const val = (e.target && e.target.value) || "";
+    let _product = { ...product };
+    _product[`${name}`] = val;
+
+    setProduct(_product);
+  };
+
+  const onInputNumberChange = (e, name) => {
+    const val = e.value || 0;
+    let _product = { ...product };
+    _product[`${name}`] = val;
+
+    setProduct(_product);
+  };
+
+  const leftToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <img
-          alt={rowData.country.name}
-          src="showcase/demo/images/flag_placeholder.png"
-          onError={(e) =>
-            (e.target.src =
-              "https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png")
-          }
-          className={`flag flag-${rowData.country.code}`}
-          width="30"
+        <Button
+          label="New"
+          icon="pi pi-plus"
+          className="p-button-success p-mr-2"
+          onClick={openNew}
         />
-        <span className="image-text">{rowData.country.name}</span>
+        <Button
+          label="Delete"
+          icon="pi pi-trash"
+          className="p-button-danger"
+          onClick={confirmDeleteSelected}
+          disabled={!selectedProducts || !selectedProducts.length}
+        />
       </React.Fragment>
     );
+  };
+
+  const rightToolbarTemplate = () => {
+    return (
+      <React.Fragment>
+        <FileUpload
+          mode="basic"
+          name="demo[]"
+          auto
+          url="https://primefaces.org/primereact/showcase/upload.php"
+          accept=".csv"
+          chooseLabel="Import"
+          className="p-mr-2 p-d-inline-block"
+          onUpload={importCSV}
+        />
+        <Button
+          label="Export"
+          icon="pi pi-upload"
+          className="p-button-help"
+          onClick={exportCSV}
+        />
+      </React.Fragment>
+    );
+  };
+  function ProductTable() {
+    if (products && products.length) {
+      return (
+        <DataTable
+          ref={dt}
+          value={products}
+          selection={selectedProducts}
+          onSelectionChange={(e) => setSelectedProducts(e.value)}
+          dataKey="id"
+          paginator
+          rows={10}
+          rowsPerPageOptions={[5, 10, 25]}
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+          globalFilter={globalFilter}
+          header={header}
+          responsiveLayout="scroll"
+        >
+          <Column
+            selectionMode="multiple"
+            headerStyle={{ width: "3rem" }}
+            exportable={false}
+          ></Column>
+
+          <Column
+            field="id"
+            header="Id"
+            sortable
+            style={{ minWidth: "12rem" }}
+          ></Column>
+
+          <Column
+            field="name"
+            header="Name"
+            sortable
+            style={{ minWidth: "11rem" }}
+          ></Column>
+
+          <Column
+            field="start"
+            header="Start"
+            sortable
+            style={{ minWidth: "11rem" }}
+          ></Column>
+
+          <Column
+            field="end"
+            header="End"
+            sortable
+            style={{ minWidth: "11rem" }}
+          ></Column>
+
+          <Column
+            field="role"
+            header="Role"
+            body={priceBodyTemplate}
+            sortable
+            style={{ minWidth: "8rem" }}
+          ></Column>
+
+          <Column
+            field="site"
+            header="Site"
+            sortable
+            style={{ minWidth: "10rem" }}
+          ></Column>
+
+          <Column
+            field="description"
+            header="Description"
+            body={statusBodyTemplate}
+            sortable
+            style={{ minWidth: "12rem" }}
+          ></Column>
+
+          <Column
+            body={actionBodyTemplate}
+            exportable={false}
+            style={{ minWidth: "8rem" }}
+          ></Column>
+        </DataTable>
+      );
+    } else {
+      return null;
+    }
+  }
+
+  const onTimeStartChange = (e) => {
+    let _product = { ...product };
+    _product["start"] = e.target.value;
+    setProduct(_product);
+  };
+
+  const onTimeEndChange = (e) => {
+    let _product = { ...product };
+    _product["end"] = e.target.value;
+    setProduct(_product);
+  };
+
+  const onSitesChange = (e) => {
+    setWorksites(e.value);
+    let _product = { ...product };
+    _product["site"] = e.value["name"];
+    setProduct(_product);
+  };
+
+  const priceBodyTemplate = (rowData) => {
+    return formatCurrency(rowData.role);
+  };
+
+  const ratingBodyTemplate = (rowData) => {
+    return <Rating value={rowData.rating} readOnly cancel={false} />;
   };
 
   const statusBodyTemplate = (rowData) => {
     return (
-      <span className={`customer-badge status-${rowData.status}`}>
-        {rowData.status}
+      <span
+        className={`product-badge status-${rowData.description.toLowerCase()}`}
+      >
+        {rowData.description}
       </span>
     );
   };
 
-  const representativeBodyTemplate = (rowData) => {
+  const actionBodyTemplate = (rowData) => {
     return (
       <React.Fragment>
-        <img
-          alt={rowData.representative.name}
-          src={`showcase/demo/images/avatar/${rowData.representative.image}`}
-          onError={(e) =>
-            (e.target.src =
-              "https://www.primefaces.org/wp-content/uploads/2020/05/placeholder.png")
-          }
-          width="32"
-          style={{ verticalAlign: "middle" }}
+        <Button
+          icon="pi pi-pencil"
+          className="p-button-rounded p-button-success p-mr-2"
+          onClick={() => editProduct(rowData)}
         />
-        <span className="image-text">{rowData.representative.name}</span>
+        <Button
+          icon="pi pi-trash"
+          className="p-button-rounded p-button-warning"
+          onClick={() => confirmDeleteProduct(rowData)}
+        />
       </React.Fragment>
     );
   };
 
-  const onRowGroupExpand = (event) => {
-    toast.current.show({
-      severity: "info",
-      summary: "Row Group Expanded",
-      detail: "Value: " + event.data.representative.name,
-      life: 3000,
-    });
-  };
+  const header = (
+    <div className="table-header">
+      <h5 className="p-mx-0 p-my-1">Manage Employees</h5>
+      <span className="p-input-icon-left">
+        <i className="pi pi-search" />
+        <InputText
+          type="search"
+          onInput={(e) => setGlobalFilter(e.target.value)}
+          placeholder="Search..."
+        />
+      </span>
+    </div>
+  );
+  const productDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="Cancel"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideDialog}
+      />
+      <Button
+        label="Save"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={saveProduct}
+      />
+    </React.Fragment>
+  );
+  const deleteProductDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideDeleteProductDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={deleteProduct}
+      />
+    </React.Fragment>
+  );
+  const deleteProductsDialogFooter = (
+    <React.Fragment>
+      <Button
+        label="No"
+        icon="pi pi-times"
+        className="p-button-text"
+        onClick={hideDeleteProductsDialog}
+      />
+      <Button
+        label="Yes"
+        icon="pi pi-check"
+        className="p-button-text"
+        onClick={deleteSelectedProducts}
+      />
+    </React.Fragment>
+  );
 
-  const onRowGroupCollapse = (event) => {
-    toast.current.show({
-      severity: "success",
-      summary: "Row Group Collapsed",
-      detail: "Value: " + event.data.representative.name,
-      life: 3000,
-    });
-  };
-
-  const calculateCustomerTotal = (name) => {
-    let total = 0;
-
-    if (customers) {
-      for (let customer of customers) {
-        if (customer.representative.name === name) {
-          total++;
-        }
-      }
-    }
-
-    return total;
-  };
   return (
-    <div id="landing" className="section section__container">
-      <HeaderTile tileTitle="Register Customer" tileName="cutsomer" />
-      <h1>Register Customer testing</h1>
-      <div className="datatable-rowgroup-demo">
-        <Toast ref={toast}></Toast>
-
-        <div className="card">
-          <h5>RowSpan Grouping</h5>
-          <DataTable
-            value={customers}
-            rowGroupMode="rowspan"
-            groupRowsBy="representative.name"
-            sortMode="single"
-            sortField="representative.name"
-            sortOrder={1}
-            responsiveLayout="scroll"
+    <section id="emp-landing" className="section section__container">
+      <HeaderTile tileTitle="ADD Customer (Brisbane)" tileName="고객 현황판" />
+      <div className="emp-table">
+        <div className="datatable-crud-demo">
+          <Toast ref={toast} />
+          <div className="card">
+            <Toolbar
+              className="p-mb-4"
+              left={leftToolbarTemplate}
+              right={rightToolbarTemplate}
+            ></Toolbar>
+          </div>
+          <ProductTable />
+          <Dialog
+            visible={productDialog}
+            style={{ width: "450px" }}
+            header="Register Employee"
+            modal
+            className="p-fluid"
+            footer={productDialogFooter}
+            onHide={hideDialog}
           >
-            <Column
-              header="#"
-              headerStyle={{ width: "3em" }}
-              body={(data, options) => options.rowIndex + 1}
-            ></Column>
-            <Column
-              field="representative.name"
-              header="Representative"
-              body={representativeBodyTemplate}
-            ></Column>
-            <Column field="name" header="Name"></Column>
-            <Column
-              field="country"
-              header="Country"
-              body={countryBodyTemplate}
-            ></Column>
-            <Column field="company" header="Company"></Column>
-            <Column
-              field="status"
-              header="Status"
-              body={statusBodyTemplate}
-            ></Column>
-            <Column field="date" header="Date"></Column>
-          </DataTable>
+            <div className="p-field">
+              <label htmlFor="name">groupId</label>
+              <InputText
+                id="groupId"
+                value={product.groupId}
+                onChange={(e) => onInputChange(e, "groupId")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !product.groupId,
+                })}
+              />
+              {submitted && !product.groupId && (
+                <small className="p-error">groupId is required.</small>
+              )}
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="description">title</label>
+              <InputTextarea
+                id="title"
+                value={product.title}
+                onChange={(e) => onInputChange(e, "title")}
+                required
+                rows={3}
+                cols={20}
+              />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="category5">Start Time</label>
+              <input type="datetime-local" onChange={onTimeStartChange} />
+            </div>
+
+            <div className="p-field">
+              <label htmlFor="category5">End Time</label>
+              <input type="datetime-local" onChange={onTimeEndChange} />
+            </div>
+
+            <div className="p-formgrid p-grid">
+              <div className="p-field p-col">
+                <label htmlFor="quantity">Quantity</label>
+                <InputNumber
+                  id="backgroundColor"
+                  value={product.backgroundColor}
+                  onValueChange={(e) =>
+                    onInputNumberChange(e, "backgroundColor")
+                  }
+                  integeronly
+                />
+              </div>
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={deleteProductDialog}
+            style={{ width: "450px" }}
+            header="Confirm"
+            modal
+            footer={deleteProductDialogFooter}
+            onHide={hideDeleteProductDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle p-mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {product && (
+                <span>
+                  Are you sure you want to delete <b>{product.name}</b>?
+                </span>
+              )}
+            </div>
+          </Dialog>
+
+          <Dialog
+            visible={deleteProductsDialog}
+            style={{ width: "450px" }}
+            header="Confirm"
+            modal
+            footer={deleteProductsDialogFooter}
+            onHide={hideDeleteProductsDialog}
+          >
+            <div className="confirmation-content">
+              <i
+                className="pi pi-exclamation-triangle p-mr-3"
+                style={{ fontSize: "2rem" }}
+              />
+              {product && (
+                <span>
+                  Are you sure you want to delete the selected products?
+                </span>
+              )}
+            </div>
+          </Dialog>
         </div>
       </div>
-    </div>
+      <div>
+        <h1>testing db</h1>
+        <header className="App-header"></header>
+        <h3 className={loading ? "loading" : ""}>
+          {(logs && JSON.stringify(logs, null, 2)) || "No query results yet!"}
+        </h3>
+      </div>
+    </section>
   );
 }
 

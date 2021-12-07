@@ -725,14 +725,14 @@ function RegEmp() {
           </Dialog>
         </div>
       </div>
-      <div>
+      {/* <div>
         <h1>testing db</h1>
         <header className="App-header"></header>
         <h3 className={loading ? "loading" : ""}>
           {(response && JSON.stringify(products, null, 2)) ||
             "No query results yet!"}
         </h3>
-      </div>
+      </div> */}
     </section>
   );
 }

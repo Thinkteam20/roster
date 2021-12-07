@@ -1,4 +1,4 @@
-import React, { createRef } from "react";
+import React, { createRef, useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -9,9 +9,28 @@ import adaptivePlugin from "@fullcalendar/adaptive";
 import interaction from "@fullcalendar/interaction";
 import "../styles/Scheduler.css";
 import getEvents from "../Data/Event.js";
+import { ipcRenderer } from "electron";
 
 function Scheduler() {
   const calenderRef = createRef();
+  const [emp, setEmp] = useState([]);
+
+  useEffect(() => {
+    ipcRenderer.send("logs:load");
+    ipcRenderer.on("logs:get", (e, logs) => {
+      console.log("get data from Mongo db");
+      setEmp(JSON.parse(logs));
+    });
+  }, []);
+
+  console.log(
+    emp.filter(function (entry) {
+      return entry.name;
+    })
+  );
+  const resource = emp[0];
+
+  console.log(resource);
 
   const resourcesCol = [
     {
@@ -52,49 +71,51 @@ function Scheduler() {
   ];
 
   return (
-    <FullCalendar
-      height="650px"
-      schedulerLicenseKey="CC-Attribution-NonCommercial-NoDerivatives"
-      weekNumberCalculation="ISO"
-      timeZone="UTC"
-      ref={calenderRef}
-      plugins={[
-        dayGridPlugin,
-        timeGridPlugin,
-        resourceTimelinePlugin,
-        adaptivePlugin,
-        resourceTimeGridPlugin,
-      ]}
-      initialView="resourceTimeline"
-      resourceGroupField="site"
-      resources={resourcesCol}
-      customButtons={{
-        iffice: {
-          text: "Iffice",
-          views: {
-            week: {
-              type: "agenda",
-              duration: { days: 7 },
-              groupByResource: true,
+    <>
+      <FullCalendar
+        height="650px"
+        schedulerLicenseKey="CC-Attribution-NonCommercial-NoDerivatives"
+        weekNumberCalculation="ISO"
+        timeZone="UTC"
+        ref={calenderRef}
+        plugins={[
+          dayGridPlugin,
+          timeGridPlugin,
+          resourceTimelinePlugin,
+          adaptivePlugin,
+          resourceTimeGridPlugin,
+        ]}
+        initialView="resourceTimeline"
+        resourceGroupField="site"
+        resources={resourcesCol}
+        customButtons={{
+          iffice: {
+            text: "Iffice",
+            views: {
+              week: {
+                type: "agenda",
+                duration: { days: 7 },
+                groupByResource: true,
+              },
+            },
+            click() {
+              const calender = calenderRef.current;
+              if (calender) {
+                const calenderApi = calender.getApi();
+                calenderApi.changeView("resourceTimeline");
+              }
             },
           },
-          click() {
-            const calender = calenderRef.current;
-            if (calender) {
-              const calenderApi = calender.getApi();
-              calenderApi.changeView("resourceTimeline");
-            }
-          },
-        },
-      }}
-      editable="true"
-      events={getEvents}
-      headerToolbar={{
-        left: "prev next",
-        center: "title",
-        right: "timeGridWeek,resourceTimeGridDay,iffice",
-      }}
-    />
+        }}
+        editable="true"
+        events={getEvents}
+        headerToolbar={{
+          left: "prev next",
+          center: "title",
+          right: "timeGridWeek,resourceTimeGridDay,iffice",
+        }}
+      />
+    </>
   );
 }
 

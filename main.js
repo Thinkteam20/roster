@@ -4,6 +4,7 @@ const { app, BrowserWindow } = require("electron");
 const { ipcMain } = require("electron");
 const connectDb = require("./config/db");
 const Log = require("./models/log");
+const Cusb = require("./models/customer");
 
 // db connect
 connectDb();
@@ -82,7 +83,17 @@ async function sendLogs() {
   }
 }
 
+async function sendCusb() {
+  try {
+    const cusb = await Cusb.find().sort({ created: 1 });
+    mainWindow.webContents.send("cusb:get", JSON.stringify(cusb));
+  } catch (err) {
+    console.log(err);
+  }
+}
+
 ipcMain.on("logs:load", sendLogs);
+ipcMain.on("cusb:load", sendCusb);
 
 // create emp
 ipcMain.on("logs:emp", async (e, item) => {
@@ -90,6 +101,16 @@ ipcMain.on("logs:emp", async (e, item) => {
   try {
     await Log.create(item);
     sendLogs();
+  } catch (err) {
+    console.log(err);
+  }
+});
+// create cusb
+ipcMain.on("cusb:add", async (e, item) => {
+  console.log(item);
+  try {
+    await Cusb.create(item);
+    sendCusb();
   } catch (err) {
     console.log(err);
   }
