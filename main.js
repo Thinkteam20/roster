@@ -5,9 +5,11 @@ const { ipcMain } = require("electron");
 const connectDb = require("./config/db");
 const Log = require("./models/log");
 const Cusb = require("./models/customer");
+const Event = require("./models/events");
+const { constants } = require("buffer");
 
 // db connect
-connectDb();
+connectDb().then(console.log("MongoDB connected!")).catch(console.error);
 let mainWindow;
 
 let isDev = false;
@@ -74,6 +76,8 @@ app.on("ready", createMainWindow);
 
 // IPC MONGO DB
 
+// EMPLOY********************************
+
 async function sendLogs() {
   try {
     const logs = await Log.find().sort({ created: 1 });
@@ -83,17 +87,7 @@ async function sendLogs() {
   }
 }
 
-async function sendCusb() {
-  try {
-    const cusb = await Cusb.find().sort({ created: 1 });
-    mainWindow.webContents.send("cusb:get", JSON.stringify(cusb));
-  } catch (err) {
-    console.log(err);
-  }
-}
-
 ipcMain.on("logs:load", sendLogs);
-ipcMain.on("cusb:load", sendCusb);
 
 // create emp
 ipcMain.on("logs:emp", async (e, item) => {
@@ -105,16 +99,7 @@ ipcMain.on("logs:emp", async (e, item) => {
     console.log(err);
   }
 });
-// create cusb
-ipcMain.on("cusb:add", async (e, item) => {
-  console.log(item);
-  try {
-    await Cusb.create(item);
-    sendCusb();
-  } catch (err) {
-    console.log(err);
-  }
-});
+
 // delete emp
 ipcMain.on("logs:delete", async (e, _id) => {
   try {
@@ -124,6 +109,7 @@ ipcMain.on("logs:delete", async (e, _id) => {
     console.log(err);
   }
 });
+
 // update emp
 ipcMain.on("logs:update", async (e, _deleteTarget, updated) => {
   try {
@@ -134,6 +120,96 @@ ipcMain.on("logs:update", async (e, _deleteTarget, updated) => {
     console.log(err);
   }
 });
+
+// CUSTOMER********************************
+async function sendCusb() {
+  try {
+    const cusb = await Cusb.find().sort({ created: 1 });
+    mainWindow.webContents.send("cusb:get", JSON.stringify(cusb));
+  } catch (err) {
+    console.log(err);
+  }
+}
+ipcMain.on("cusb:load", sendCusb);
+
+// find event
+ipcMain.on("createCustomer", async function (e, args) {
+  console.log(args);
+
+  // return Cusb.findById(id).then((event) => {
+  //   new Cusb({
+  //     event,
+  //   }).save();
+  // });
+});
+
+// functions one to many
+async function createCusb(customerb) {
+  return Cusb.create(customerb).then((docTutorial) => {
+    console.log(" Created customerb:\n", docTutorial);
+    return docTutorial;
+  });
+}
+
+async function createEvent(customerbId, event) {
+  console.log(event);
+  return Cusb.findByIdAndUpdate(
+    customerbId,
+    {
+      $push: {
+        event: {
+          resourceId: event.resourceId,
+          title: event.title,
+          start: event.start,
+          end: event.end,
+          backgroundColor: event.backgroundColor,
+        },
+      },
+    },
+    { new: true, useFindAndModify: false }
+  );
+}
+
+const run = async function () {
+  let cusb = await createCusb({
+    site: "LVIIII",
+    roles: "Auditorium O",
+    location: "123CBD",
+    id: "0",
+  });
+
+  cusb = await createEvent(cusb._id, {
+    resourceId: "0",
+    title: "지원,창수",
+    start: "2021-12-09T11:30:00Z",
+    end: "2021-12-09T12:30:00Z",
+    backgroundColor: "red",
+  });
+  console.log("\n>> full cusb:\n", cusb);
+
+  cusb = await createEvent(cusb._id, {
+    resourceId: "1",
+    title: "Mina",
+    start: "2021-12-09T11:30:00Z",
+    end: "2021-12-09T12:30:00Z",
+    backgroundColor: "blue",
+  });
+};
+
+// create cusb
+ipcMain.on("cusb:add", async (e, item) => {
+  console.log(item);
+  try {
+    await Cusb.create(item);
+    sendCusb();
+  } catch (err) {
+    console.log(err);
+  }
+});
+//
+
+// ********************************************
+run();
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

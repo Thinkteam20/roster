@@ -28,27 +28,35 @@ function RegCus() {
   const [dataNumber, setDatanNumber] = useState();
 
   let testlogs = {
-    text: "",
-    priority: "",
-    user: "",
-    time: null,
+    site: "LVIIII",
+    roles: "Auditorium O",
+    location: "123CBD",
+    id: "0",
+  };
+
+  let events = {
+    resourceId: "0",
+    title: "지원,창수",
+    start: "2021-12-09T11:30:00Z",
+    end: "2021-12-09T12:30:00Z",
+    backgroundColor: "red",
   };
 
   let emptyProduct = {
     groupId: "null",
+    id: "",
     title: "",
-    start: "",
     end: "",
     backgroundColor: "",
   };
 
   const [products, setProducts] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [log, setLog] = useState(testlogs);
+  const [log, setLog] = useState(events);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-  const [product, setProduct] = useState(emptyProduct);
+  const [product, setProduct] = useState(testlogs);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -62,7 +70,7 @@ function RegCus() {
       console.log("get data from Mongo db");
       // console.log(logs);
       // setProducts(logs);
-      setLogs(JSON.parse(logs));
+      setProducts(JSON.parse(logs));
     });
   }, []);
 
@@ -80,6 +88,7 @@ function RegCus() {
     { name: "The Hour Glass - CBD Edward Street" },
     { name: "Yves Saint Laurent - CBD Queens Plaza" },
   ];
+
   const formatCurrency = (value) => {
     return value;
   };
@@ -115,6 +124,14 @@ function RegCus() {
     });
     setProductDialog(false);
     setProduct(emptyProduct);
+  };
+
+  const createCus = () => {
+    ipcRenderer.send("cusb:add", product);
+  };
+
+  const createCuswithEvent = () => {
+    ipcRenderer.send("createCustomer", [testlogs, events]);
   };
 
   const editProduct = (product) => {
@@ -321,15 +338,15 @@ function RegCus() {
           ></Column>
 
           <Column
-            field="id"
-            header="Id"
+            field="_id"
+            header="_id"
             sortable
             style={{ minWidth: "12rem" }}
           ></Column>
 
           <Column
-            field="name"
-            header="Name"
+            field="site"
+            header="Site"
             sortable
             style={{ minWidth: "11rem" }}
           ></Column>
@@ -349,21 +366,21 @@ function RegCus() {
           ></Column>
 
           <Column
-            field="role"
-            header="Role"
+            field="roles"
+            header="Roles"
             body={priceBodyTemplate}
             sortable
             style={{ minWidth: "8rem" }}
           ></Column>
 
           <Column
-            field="site"
-            header="Site"
+            field="location"
+            header="Location"
             sortable
             style={{ minWidth: "10rem" }}
           ></Column>
 
-          <Column
+          {/* <Column
             field="description"
             header="Description"
             body={statusBodyTemplate}
@@ -375,7 +392,7 @@ function RegCus() {
             body={actionBodyTemplate}
             exportable={false}
             style={{ minWidth: "8rem" }}
-          ></Column>
+          ></Column> */}
         </DataTable>
       );
     } else {
@@ -623,8 +640,11 @@ function RegCus() {
         <h1>testing db</h1>
         <header className="App-header"></header>
         <h3 className={loading ? "loading" : ""}>
-          {(logs && JSON.stringify(logs, null, 2)) || "No query results yet!"}
+          {(products && JSON.stringify(products, null, 2)) ||
+            "No query results yet!"}
         </h3>
+        <button onClick={createCus}>create</button>
+        <button onClick={createCuswithEvent}>events</button>
       </div>
     </section>
   );

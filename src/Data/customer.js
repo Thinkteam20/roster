@@ -20,7 +20,6 @@ let events = [
     backgroundColor: "green",
   },
   {
-    groupId: "LV",
     title: "Gucci",
     start: "2021-11-18T13:30:00Z",
     backgroundColor: "purple",
