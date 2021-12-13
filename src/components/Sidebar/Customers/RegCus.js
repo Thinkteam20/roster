@@ -17,7 +17,7 @@ import { Dropdown } from "primereact/dropdown";
 import "./DataTableDemo.css";
 import HeaderTile from "../../Morecules/HeaderTile.js";
 import "../../../App.css";
-import "./DataTableDemo.css";
+
 // import sendAsync from "../../../message-control/renderer.js";
 // import addTable from "../../../message-control/addEmp.js";
 // import addValueAsync from "../../../message-control/addValue.js";
@@ -28,35 +28,36 @@ function RegCus() {
   const [dataNumber, setDatanNumber] = useState();
 
   let testlogs = {
-    site: "LVIIII",
-    roles: "Auditorium O",
+    title: "Versace",
+    id: "1",
+    site: "Versace",
+    roles: "Auditorium A",
     location: "123CBD",
-    id: "0",
   };
 
   let events = {
-    resourceId: "0",
-    title: "지원,창수",
-    start: "2021-12-09T11:30:00Z",
-    end: "2021-12-09T12:30:00Z",
-    backgroundColor: "red",
+    title: "Versace",
+    id: "1",
+    site: "Versace",
+    roles: "Auditorium A",
+    location: "123CBD",
   };
 
   let emptyProduct = {
-    groupId: "null",
-    id: "",
     title: "",
-    end: "",
-    backgroundColor: "",
+    id: "",
+    site: "",
+    roles: "",
+    location: "",
   };
 
   const [products, setProducts] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [log, setLog] = useState(events);
+  const [log, setLog] = useState();
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-  const [product, setProduct] = useState(testlogs);
+  const [product, setProduct] = useState(events);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -68,8 +69,6 @@ function RegCus() {
     ipcRenderer.send("cusb:load");
     ipcRenderer.on("cusb:get", (e, logs) => {
       console.log("get data from Mongo db");
-      // console.log(logs);
-      // setProducts(logs);
       setProducts(JSON.parse(logs));
     });
   }, []);
@@ -114,25 +113,50 @@ function RegCus() {
 
   const saveProduct = () => {
     setSubmitted(true);
-    ipcRenderer.send("cusb:add", product);
-    setLogs(product);
-    toast.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Product Created",
-      life: 3000,
-    });
-    setProductDialog(false);
-    setProduct(emptyProduct);
+
+    if (product.title.trim()) {
+      let _products = [...products];
+      let _product = { ...product };
+      // console.log(_product);
+      let _deleteTarget = product.resouceid;
+      if (product.id) {
+        const index = findIndexById(product.id);
+        _products[index] = _product;
+        // console.log(_deleteTarget);
+        ipcRenderer.send("cusb:update", _deleteTarget, _product);
+        setProducts(_products);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Updated",
+          life: 3000,
+        });
+      } else {
+        _product.id = createId();
+        // _product.image = "product-placeholder.svg";
+        _products.push(_product);
+        ipcRenderer.send("cusb:add", _products);
+        setProducts(_products);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Product Created",
+          life: 3000,
+        });
+      }
+      setProducts(_products);
+      setProductDialog(false);
+      setProduct(emptyProduct);
+    }
   };
 
   const createCus = () => {
     ipcRenderer.send("cusb:add", product);
   };
 
-  const createCuswithEvent = () => {
-    ipcRenderer.send("createCustomer", [testlogs, events]);
-  };
+  // const createCuswithEvent = () => {
+  //   ipcRenderer.send("createCustomer", [testlogs, events]);
+  // };
 
   const editProduct = (product) => {
     console.log(product);
@@ -151,7 +175,7 @@ function RegCus() {
     let _selected = products.filter((val) => val.name === product.name);
     let deleteTarget = product.id;
     console.log(deleteTarget);
-    ipcRenderer.send("logs:delete", deleteTarget);
+    ipcRenderer.send("cusb:delete", deleteTarget);
     setProducts(_products);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
@@ -191,11 +215,11 @@ function RegCus() {
     reader.onload = (e) => {
       const csv = e.target.result;
       const data = csv.split("\n");
-
+      console.log(csv, data);
       // Prepare DataTable
       const cols = data[0].replace(/['"]+/g, "").split(",");
       data.shift();
-
+      console.log(cols);
       const importedData = data.map((d) => {
         d = d.split(",");
         const processedData = cols.reduce((obj, c, i) => {
@@ -232,6 +256,7 @@ function RegCus() {
 
   const deleteSelectedProducts = () => {
     let _products = products.filter((val) => !selectedProducts.includes(val));
+    ipcRenderer.send("logs:delete2", products);
     setProducts(_products);
     setDeleteProductsDialog(false);
     setSelectedProducts(null);
@@ -267,7 +292,6 @@ function RegCus() {
     const val = e.value || 0;
     let _product = { ...product };
     _product[`${name}`] = val;
-
     setProduct(_product);
   };
 
@@ -298,7 +322,7 @@ function RegCus() {
           mode="basic"
           name="demo[]"
           auto
-          url="https://primefaces.org/primereact/showcase/upload.php"
+          url="http://localhost:8080"
           accept=".csv"
           chooseLabel="Import"
           className="p-mr-2 p-d-inline-block"
@@ -338,10 +362,17 @@ function RegCus() {
           ></Column>
 
           <Column
-            field="_id"
-            header="_id"
+            field="title"
+            header="Title"
             sortable
             style={{ minWidth: "12rem" }}
+          ></Column>
+
+          <Column
+            field="id"
+            header="GroupId"
+            sortable
+            style={{ minWidth: "11rem" }}
           ></Column>
 
           <Column
@@ -352,47 +383,24 @@ function RegCus() {
           ></Column>
 
           <Column
-            field="start"
-            header="Start"
-            sortable
-            style={{ minWidth: "11rem" }}
-          ></Column>
-
-          <Column
-            field="end"
-            header="End"
-            sortable
-            style={{ minWidth: "11rem" }}
-          ></Column>
-
-          <Column
             field="roles"
             header="Roles"
-            body={priceBodyTemplate}
             sortable
-            style={{ minWidth: "8rem" }}
+            style={{ minWidth: "11rem" }}
           ></Column>
 
           <Column
             field="location"
             header="Location"
             sortable
-            style={{ minWidth: "10rem" }}
-          ></Column>
-
-          {/* <Column
-            field="description"
-            header="Description"
-            body={statusBodyTemplate}
-            sortable
-            style={{ minWidth: "12rem" }}
+            style={{ minWidth: "8rem" }}
           ></Column>
 
           <Column
             body={actionBodyTemplate}
             exportable={false}
             style={{ minWidth: "8rem" }}
-          ></Column> */}
+          ></Column>
         </DataTable>
       );
     } else {
@@ -518,7 +526,10 @@ function RegCus() {
 
   return (
     <section id="emp-landing" className="section section__container">
-      <HeaderTile tileTitle="ADD Customer (Brisbane)" tileName="고객 현황판" />
+      <HeaderTile
+        tileTitle="ADD Customer (Brisbane)"
+        tileName="Brisbane Customers"
+      />
       <div className="emp-table">
         <div className="datatable-crud-demo">
           <Toast ref={toast} />
@@ -533,25 +544,25 @@ function RegCus() {
           <Dialog
             visible={productDialog}
             style={{ width: "450px" }}
-            header="Register Employee"
+            header="Register Customer for Brisbane"
             modal
             className="p-fluid"
             footer={productDialogFooter}
             onHide={hideDialog}
           >
             <div className="p-field">
-              <label htmlFor="name">groupId</label>
+              <label htmlFor="name">GroupId</label>
               <InputText
-                id="groupId"
-                value={product.groupId}
-                onChange={(e) => onInputChange(e, "groupId")}
+                id="id"
+                value={product.id}
+                onChange={(e) => onInputChange(e, "id")}
                 required
                 autoFocus
                 className={classNames({
-                  "p-invalid": submitted && !product.groupId,
+                  "p-invalid": submitted && !product.id,
                 })}
               />
-              {submitted && !product.groupId && (
+              {submitted && !product.id && (
                 <small className="p-error">groupId is required.</small>
               )}
             </div>
@@ -569,27 +580,49 @@ function RegCus() {
             </div>
 
             <div className="p-field">
-              <label htmlFor="category5">Start Time</label>
-              <input type="datetime-local" onChange={onTimeStartChange} />
+              <label htmlFor="site">Site</label>
+              <InputText
+                id="site"
+                value={product.site}
+                onChange={(e) => onInputChange(e, "site")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !product.site,
+                })}
+              />
+              {submitted && !product.site && (
+                <small className="p-error">Site is required.</small>
+              )}
             </div>
 
             <div className="p-field">
-              <label htmlFor="category5">End Time</label>
-              <input type="datetime-local" onChange={onTimeEndChange} />
+              <label htmlFor="roles">Roles</label>
+              <InputText
+                id="roles"
+                value={product.roles}
+                onChange={(e) => onInputChange(e, "roles")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !product.roles,
+                })}
+              />
+              {submitted && !product.roles && (
+                <small className="p-error">Roles is required.</small>
+              )}
             </div>
 
-            <div className="p-formgrid p-grid">
-              <div className="p-field p-col">
-                <label htmlFor="quantity">Quantity</label>
-                <InputNumber
-                  id="backgroundColor"
-                  value={product.backgroundColor}
-                  onValueChange={(e) =>
-                    onInputNumberChange(e, "backgroundColor")
-                  }
-                  integeronly
-                />
-              </div>
+            <div className="p-field">
+              <label htmlFor="location">Location</label>
+              <InputTextarea
+                id="location"
+                value={product.location}
+                onChange={(e) => onInputChange(e, "location")}
+                required
+                rows={3}
+                cols={20}
+              />
             </div>
           </Dialog>
 
@@ -644,7 +677,7 @@ function RegCus() {
             "No query results yet!"}
         </h3>
         <button onClick={createCus}>create</button>
-        <button onClick={createCuswithEvent}>events</button>
+        {/* <button onClick={createCuswithEvent}>events</button> */}
       </div>
     </section>
   );

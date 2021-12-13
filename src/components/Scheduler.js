@@ -29,21 +29,61 @@ function Scheduler() {
     });
   }, []);
 
-  const testingdata = [
+  const resourcesCol = [
     {
-      id: "",
       title: "Versace",
-      start: "2021-12-09T12:30:00Z",
-      end: "2021-12-09T14:30:00Z",
+      id: "1",
+      site: "Versace",
+      roles: "Auditorium A",
+      location: "123CBD",
+    },
+    {
+      title: "Bvlgari",
+      id: "2",
+      site: "LV",
+      roles: "Auditorium G",
+      location: "123CBD",
+    },
+    {
+      title: "Chanel",
+      id: "3",
+      site: "LV",
+      roles: "Auditorium H",
+      location: "123CBD",
+    },
+    {
+      title: "Chanel",
+      site: "Gucci",
+      id: "4",
+      roles: "Auditorium O",
+      location: "123CBD",
+    },
+    {
+      title: "Longchamp",
+      id: "5",
+      site: "Gucci",
+      roles: "Auditorium P",
+      location: "123CBD",
     },
   ];
 
-  let events = [];
-  console.log(event);
-
   // const resource = emp[0];
 
-  // console.log(resource);
+  let allevent = event.map((eventy) => {
+    return eventy.event;
+  });
+
+  function eventee(rowEvent) {
+    console.log(rowEvent.length);
+    for (let element of rowEvent) {
+      // return element;
+    }
+  }
+
+  // eventee(allevent);
+
+  console.log(eventee(allevent));
+  // eventee(allevent);
 
   return (
     <>
@@ -64,9 +104,9 @@ function Scheduler() {
           timeGridWeek,
         ]}
         // slotDuration={(days = 1)}
-        initialView="resourceTimelineWeek"
+        initialView="resourceTimelineDay"
         resourceGroupField="site"
-        resources={event}
+        resources={resourcesCol}
         customButtons={{
           custom: {
             text: "Iffice",
@@ -87,11 +127,11 @@ function Scheduler() {
           },
         }}
         editable="true"
-        events={event}
+        events={eventee(allevent)}
         headerToolbar={{
           left: "prev next",
           center: "title",
-          right: "custom,timeGridWeek,resourceTimelineDay",
+          right: "resourceTimelineDay",
         }}
       />
     </>
@@ -99,3 +139,4 @@ function Scheduler() {
 }
 
 export default Scheduler;
+// custom,timeGridWeek,

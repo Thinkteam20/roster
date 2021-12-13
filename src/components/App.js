@@ -23,7 +23,7 @@ const items = [
       {
         label: "Employee(Sydney)",
         command: () => {
-          window.location.hash = "/regemp";
+          window.location.hash = "/regemp2";
         },
       },
     ],

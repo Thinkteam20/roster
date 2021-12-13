@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const LogSchema = new mongoose.Schema({
+const LogSchema2 = new mongoose.Schema({
   id: { type: String },
   name: { type: String },
   role: { type: String },
@@ -12,4 +12,4 @@ const LogSchema = new mongoose.Schema({
   email: { type: String },
 });
 
-module.exports = mongoose.model("Log", LogSchema);
+module.exports = mongoose.model("Log2", LogSchema2);

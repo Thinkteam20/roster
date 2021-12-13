@@ -17,41 +17,47 @@ import { Dropdown } from "primereact/dropdown";
 import "./DataTableDemo.css";
 import HeaderTile from "../../Morecules/HeaderTile.js";
 import "../../../App.css";
+
 // import sendAsync from "../../../message-control/renderer.js";
 // import addTable from "../../../message-control/addEmp.js";
 // import addValueAsync from "../../../message-control/addValue.js";
 
-function RegEmp() {
+function RegCus() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState([]);
   const [dataNumber, setDatanNumber] = useState();
 
   let testlogs = {
-    text: "",
-    priority: "",
-    user: "",
-    time: null,
+    title: "Versace",
+    id: "1",
+    site: "Versace",
+    roles: "Auditorium A",
+    location: "123CBD",
+  };
+
+  let events = {
+    title: "Versace",
+    id: "1",
+    site: "Versace",
+    roles: "Auditorium A",
+    location: "123CBD",
   };
 
   let emptyProduct = {
-    id: null,
-    name: "",
-    role: null,
-    description: "",
-    start: "",
-    end: "",
-    site: null,
-    wage: 0,
-    email: "",
+    title: "",
+    id: "",
+    site: "",
+    roles: "",
+    location: "",
   };
 
   const [products, setProducts] = useState([]);
   const [logs, setLogs] = useState([]);
-  const [log, setLog] = useState(testlogs);
+  const [log, setLog] = useState(events);
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-  const [product, setProduct] = useState(emptyProduct);
+  const [product, setProduct] = useState(events);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -60,11 +66,9 @@ function RegEmp() {
   const dt = useRef(null);
 
   useEffect(() => {
-    ipcRenderer.send("logs:load");
-    ipcRenderer.on("logs:get", (e, logs) => {
+    ipcRenderer.send("cusb:load");
+    ipcRenderer.on("cusb:get", (e, logs) => {
       console.log("get data from Mongo db");
-      // console.log(logs);
-      // setProducts(logs);
       setProducts(JSON.parse(logs));
     });
   }, []);
@@ -83,6 +87,7 @@ function RegEmp() {
     { name: "The Hour Glass - CBD Edward Street" },
     { name: "Yves Saint Laurent - CBD Queens Plaza" },
   ];
+
   const formatCurrency = (value) => {
     return value;
   };
@@ -108,42 +113,25 @@ function RegEmp() {
 
   const saveProduct = () => {
     setSubmitted(true);
-
-    if (product.name.trim()) {
-      let _products = [...products];
-      let _product = { ...product };
-      // console.log(_product);
-      let _deleteTarget = product.id;
-      if (product.id) {
-        const index = findIndexById(product.id);
-        _products[index] = _product;
-        // console.log(_deleteTarget);
-        ipcRenderer.send("logs:update", _deleteTarget, _product);
-        setProducts(_products);
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Updated",
-          life: 3000,
-        });
-      } else {
-        _product.id = createId();
-        // _product.image = "product-placeholder.svg";
-        _products.push(_product);
-        ipcRenderer.send("logs:emp", _products);
-        setProducts(_products);
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Product Created",
-          life: 3000,
-        });
-      }
-      setProducts(_products);
-      setProductDialog(false);
-      setProduct(emptyProduct);
-    }
+    ipcRenderer.send("cusb:add", product);
+    setLogs(product);
+    toast.current.show({
+      severity: "success",
+      summary: "Successful",
+      detail: "Product Created",
+      life: 3000,
+    });
+    setProductDialog(false);
+    setProduct(emptyProduct);
   };
+
+  const createCus = () => {
+    ipcRenderer.send("cusb:add", product);
+  };
+
+  // const createCuswithEvent = () => {
+  //   ipcRenderer.send("createCustomer", [testlogs, events]);
+  // };
 
   const editProduct = (product) => {
     console.log(product);
@@ -202,11 +190,11 @@ function RegEmp() {
     reader.onload = (e) => {
       const csv = e.target.result;
       const data = csv.split("\n");
-
+      console.log(csv, data);
       // Prepare DataTable
       const cols = data[0].replace(/['"]+/g, "").split(",");
       data.shift();
-
+      console.log(cols);
       const importedData = data.map((d) => {
         d = d.split(",");
         const processedData = cols.reduce((obj, c, i) => {
@@ -243,7 +231,7 @@ function RegEmp() {
 
   const deleteSelectedProducts = () => {
     let _products = products.filter((val) => !selectedProducts.includes(val));
-    ipcRenderer.send("logs:delete2", selectedProducts);
+    ipcRenderer.send("logs:delete2", products);
     setProducts(_products);
     setDeleteProductsDialog(false);
     setSelectedProducts(null);
@@ -275,19 +263,10 @@ function RegEmp() {
     setProduct(_product);
   };
 
-  const onEmailChange = (e, email) => {
-    const val = (e.target && e.target.value) || "";
-    let _product = { ...product };
-    _product[`${name}`] = val;
-
-    setProduct(_product);
-  };
-
   const onInputNumberChange = (e, name) => {
     const val = e.value || 0;
     let _product = { ...product };
     _product[`${name}`] = val;
-
     setProduct(_product);
   };
 
@@ -318,7 +297,7 @@ function RegEmp() {
           mode="basic"
           name="demo[]"
           auto
-          url=""
+          url="http://localhost:8080"
           accept=".csv"
           chooseLabel="Import"
           className="p-mr-2 p-d-inline-block"
@@ -358,62 +337,38 @@ function RegEmp() {
           ></Column>
 
           <Column
-            field="id"
-            header="Id"
+            field="title"
+            header="Title"
             sortable
             style={{ minWidth: "12rem" }}
           ></Column>
 
           <Column
-            field="name"
-            header="Name"
+            field="id"
+            header="Id"
             sortable
             style={{ minWidth: "11rem" }}
-          ></Column>
-
-          <Column
-            field="start"
-            header="Start"
-            sortable
-            style={{ minWidth: "11rem" }}
-          ></Column>
-
-          <Column
-            field="end"
-            header="End"
-            sortable
-            style={{ minWidth: "11rem" }}
-          ></Column>
-
-          <Column
-            field="role"
-            header="Role"
-            body={priceBodyTemplate}
-            sortable
-            style={{ minWidth: "8rem" }}
           ></Column>
 
           <Column
             field="site"
             header="Site"
             sortable
-            style={{ minWidth: "10rem" }}
+            style={{ minWidth: "11rem" }}
           ></Column>
 
           <Column
-            field="description"
-            header="Description"
-            body={statusBodyTemplate}
+            field="roles"
+            header="Roles"
             sortable
-            style={{ minWidth: "12rem" }}
+            style={{ minWidth: "11rem" }}
           ></Column>
 
           <Column
-            field="email"
-            header="Email"
-            body={statusBodyTemplateEmail}
+            field="location"
+            header="Location"
             sortable
-            style={{ minWidth: "12rem" }}
+            style={{ minWidth: "8rem" }}
           ></Column>
 
           <Column
@@ -461,14 +416,6 @@ function RegEmp() {
         className={`product-badge status-${rowData.description.toLowerCase()}`}
       >
         {rowData.description}
-      </span>
-    );
-  };
-
-  const statusBodyTemplateEmail = (rowData) => {
-    return (
-      <span className={`product-badge status-${rowData.email.toLowerCase()}`}>
-        {rowData.email}
       </span>
     );
   };
@@ -554,8 +501,10 @@ function RegEmp() {
 
   return (
     <section id="emp-landing" className="section section__container">
-      <HeaderTile tileTitle="ADD EMPLOYEES" tileName="Brisbane" />
-      <h1>Employees</h1>
+      <HeaderTile
+        tileTitle="ADD Customer (Brisbane)"
+        tileName="Sydney Customers"
+      />
       <div className="emp-table">
         <div className="datatable-crud-demo">
           <Toast ref={toast} />
@@ -577,88 +526,32 @@ function RegEmp() {
             onHide={hideDialog}
           >
             <div className="p-field">
-              <label htmlFor="name">Name</label>
+              <label htmlFor="name">groupId</label>
               <InputText
-                id="name"
-                value={product.name}
-                onChange={(e) => onInputChange(e, "name")}
+                id="groupId"
+                value={product.groupId}
+                onChange={(e) => onInputChange(e, "groupId")}
                 required
                 autoFocus
                 className={classNames({
-                  "p-invalid": submitted && !product.name,
+                  "p-invalid": submitted && !product.groupId,
                 })}
               />
-              {submitted && !product.name && (
-                <small className="p-error">Name is required.</small>
+              {submitted && !product.groupId && (
+                <small className="p-error">groupId is required.</small>
               )}
             </div>
 
             <div className="p-field">
-              <label htmlFor="description">Description</label>
+              <label htmlFor="description">title</label>
               <InputTextarea
-                id="description"
-                value={product.description}
-                onChange={(e) => onInputChange(e, "description")}
+                id="title"
+                value={product.title}
+                onChange={(e) => onInputChange(e, "title")}
                 required
                 rows={3}
                 cols={20}
               />
-            </div>
-
-            <div className="p-field">
-              <label className="p-mb-3">Role</label>
-              <div className="p-formgrid p-grid">
-                <div className="p-field-radiobutton p-col-6">
-                  <RadioButton
-                    inputId="category1"
-                    name="category"
-                    value="Mop"
-                    onChange={onCategoryChange}
-                    checked={product.role === "Mop"}
-                  />
-                  <label htmlFor="category1">Mop</label>
-                </div>
-                <div className="p-field-radiobutton p-col-6">
-                  <RadioButton
-                    inputId="category2"
-                    name="category"
-                    value="Vacumme"
-                    onChange={onCategoryChange}
-                    checked={product.role === "Vacumme"}
-                  />
-                  <label htmlFor="category2">Vacumme</label>
-                </div>
-                <div className="p-field-radiobutton p-col-6">
-                  <RadioButton
-                    inputId="category3"
-                    name="category"
-                    value="Dusting"
-                    onChange={onCategoryChange}
-                    checked={product.role === "Dusting"}
-                  />
-                  <label htmlFor="category3">Dusting</label>
-                </div>
-                <div className="p-field-radiobutton p-col-6">
-                  <RadioButton
-                    inputId="category4"
-                    name="category"
-                    value="Vacuum & Mop"
-                    onChange={onCategoryChange}
-                    checked={product.role === "Vacuum & Mop"}
-                  />
-                  <label htmlFor="category4">Vacuum & Mop</label>
-                </div>
-                <div className="p-field-radiobutton p-col-6">
-                  <RadioButton
-                    inputId="category5"
-                    name="category"
-                    value="Dusting/Office"
-                    onChange={onCategoryChange}
-                    checked={product.role === "Dusting/Office"}
-                  />
-                  <label htmlFor="category5">Dusting/Office</label>
-                </div>
-              </div>
             </div>
 
             <div className="p-field">
@@ -673,40 +566,14 @@ function RegEmp() {
 
             <div className="p-formgrid p-grid">
               <div className="p-field p-col">
-                <label htmlFor="price">Wage</label>
+                <label htmlFor="quantity">Quantity</label>
                 <InputNumber
-                  id="wage"
-                  value={product.wage}
-                  onValueChange={(e) => onInputNumberChange(e, "wage")}
-                  mode="currency"
-                  currency="USD"
-                  locale="en-US"
-                />
-              </div>
-              <div className="p-field">
-                <label htmlFor="email">Email</label>
-                <InputText
-                  id="email"
-                  value={product.email}
-                  onChange={(e) => onInputChange(e, "email")}
-                  required
-                  autoFocus
-                  className={classNames({
-                    "p-invalid": submitted && !product.email,
-                  })}
-                />
-                {submitted && !product.email && (
-                  <small className="p-error">Email is required.</small>
-                )}
-              </div>
-              <div className="p-field p-col">
-                <label htmlFor="quantity">Site</label>
-                <Dropdown
-                  value={worksite}
-                  options={sites}
-                  onChange={onSitesChange}
-                  optionLabel="name"
-                  placeholder="Select Sites"
+                  id="backgroundColor"
+                  value={product.backgroundColor}
+                  onValueChange={(e) =>
+                    onInputNumberChange(e, "backgroundColor")
+                  }
+                  integeronly
                 />
               </div>
             </div>
@@ -755,16 +622,18 @@ function RegEmp() {
           </Dialog>
         </div>
       </div>
-      {/* <div>
+      <div>
         <h1>testing db</h1>
         <header className="App-header"></header>
         <h3 className={loading ? "loading" : ""}>
-          {(response && JSON.stringify(products, null, 2)) ||
+          {(products && JSON.stringify(products, null, 2)) ||
             "No query results yet!"}
         </h3>
-      </div> */}
+        <button onClick={createCus}>create</button>
+        {/* <button onClick={createCuswithEvent}>events</button> */}
+      </div>
     </section>
   );
 }
 
-export default RegEmp;
+export default RegCus;

@@ -1,12 +1,11 @@
 const mongoose = require("mongoose");
 
 let cusSchema = new mongoose.Schema({
+  title: String,
+  id: String,
   site: String,
   roles: String,
   location: String,
-  id: String,
-  event: [],
-  employee: [],
 });
 
 module.exports = mongoose.model("cusb", cusSchema);

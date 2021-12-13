@@ -21,7 +21,7 @@ import "../../../App.css";
 // import addTable from "../../../message-control/addEmp.js";
 // import addValueAsync from "../../../message-control/addValue.js";
 
-function RegEmp() {
+function RegEmp2() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState([]);
   const [dataNumber, setDatanNumber] = useState();
@@ -60,8 +60,8 @@ function RegEmp() {
   const dt = useRef(null);
 
   useEffect(() => {
-    ipcRenderer.send("logs:load");
-    ipcRenderer.on("logs:get", (e, logs) => {
+    ipcRenderer.send("logs2:load");
+    ipcRenderer.on("logs2:get", (e, logs) => {
       console.log("get data from Mongo db");
       // console.log(logs);
       // setProducts(logs);
@@ -118,7 +118,7 @@ function RegEmp() {
         const index = findIndexById(product.id);
         _products[index] = _product;
         // console.log(_deleteTarget);
-        ipcRenderer.send("logs:update", _deleteTarget, _product);
+        ipcRenderer.send("logs2:update", _deleteTarget, _product);
         setProducts(_products);
         toast.current.show({
           severity: "success",
@@ -130,7 +130,7 @@ function RegEmp() {
         _product.id = createId();
         // _product.image = "product-placeholder.svg";
         _products.push(_product);
-        ipcRenderer.send("logs:emp", _products);
+        ipcRenderer.send("logs2:emp", _products);
         setProducts(_products);
         toast.current.show({
           severity: "success",
@@ -162,7 +162,7 @@ function RegEmp() {
     let _selected = products.filter((val) => val.name === product.name);
     let deleteTarget = product.id;
     console.log(deleteTarget);
-    ipcRenderer.send("logs:delete", deleteTarget);
+    ipcRenderer.send("logs2:delete", deleteTarget);
     setProducts(_products);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
@@ -243,7 +243,7 @@ function RegEmp() {
 
   const deleteSelectedProducts = () => {
     let _products = products.filter((val) => !selectedProducts.includes(val));
-    ipcRenderer.send("logs:delete2", selectedProducts);
+    ipcRenderer.send("logs2:delete2", selectedProducts);
     setProducts(_products);
     setDeleteProductsDialog(false);
     setSelectedProducts(null);
@@ -554,7 +554,7 @@ function RegEmp() {
 
   return (
     <section id="emp-landing" className="section section__container">
-      <HeaderTile tileTitle="ADD EMPLOYEES" tileName="Brisbane" />
+      <HeaderTile tileTitle="ADD EMPLOYEES" tileName="Sydney" />
       <h1>Employees</h1>
       <div className="emp-table">
         <div className="datatable-crud-demo">
@@ -767,4 +767,4 @@ function RegEmp() {
   );
 }
 
-export default RegEmp;
+export default RegEmp2;
