@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-let cusSchema = new mongoose.Schema({
+let cuscSchema = new mongoose.Schema({
   title: String,
   id: String,
   site: String,
@@ -9,4 +9,4 @@ let cusSchema = new mongoose.Schema({
   groupId: String,
 });
 
-module.exports = mongoose.model("cusb", cusSchema);
+module.exports = mongoose.model("cusc", cuscSchema);

@@ -15,19 +15,22 @@ import "../styles/Scheduler.css";
 import getEvents from "../Data/Event.js";
 import { ipcRenderer } from "electron";
 
-function Scheduler() {
+function SchedulerS() {
   const calenderRef = createRef();
   const [event, setEvent] = useState([]);
+  const [column, setColumn] = useState([]);
 
   useEffect(() => {
-    ipcRenderer.send("cusb:load");
-    ipcRenderer.on("cusb:get", (e, logs) => {
+    ipcRenderer.send("cusc:load");
+    ipcRenderer.on("cusc:get", (e, logs) => {
       console.log("get data from Mongo db");
       // console.log(logs);
       // setProducts(logs);
-      setEvent(JSON.parse(logs));
+      setColumn(JSON.parse(logs));
     });
   }, []);
+
+  console.log(column);
 
   const resourcesCol = [
     {
@@ -74,7 +77,7 @@ function Scheduler() {
   });
 
   function eventee(rowEvent) {
-    console.log(rowEvent.length);
+    // console.log(rowEvent.length);
     for (let element of rowEvent) {
       // return element;
     }
@@ -82,7 +85,7 @@ function Scheduler() {
 
   // eventee(allevent);
 
-  console.log(eventee(allevent));
+  // console.log(eventee(allevent));
   // eventee(allevent);
 
   return (
@@ -106,7 +109,7 @@ function Scheduler() {
         // slotDuration={(days = 1)}
         initialView="resourceTimelineDay"
         resourceGroupField="site"
-        resources={resourcesCol}
+        resources={column}
         customButtons={{
           custom: {
             text: "Iffice",
@@ -138,5 +141,5 @@ function Scheduler() {
   );
 }
 
-export default Scheduler;
+export default SchedulerS;
 // custom,timeGridWeek,

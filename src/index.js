@@ -6,7 +6,8 @@ import "./App.css";
 import RegEmp from "./components/Sidebar/Employee/RegEmp.js";
 import Regemp2 from "./components/Sidebar/Employee/RegEmp2";
 import Report from "./components/Screens/Report.js";
-import Roster from "./components/Screens/Roster.js";
+import RosterB from "./components/Screens/RosterB.js";
+import RosterS from "./components/Screens/RosterS.js";
 import RegCus from "./components/Sidebar/Customers/RegCus.js";
 import RegCus2 from "./components/Sidebar/Customers/RegCus2.js";
 import Logger from "./components/Screens/Logger.js";
@@ -25,7 +26,8 @@ render(
       <Route path="/regemp" element={<RegEmp />} />
       <Route path="/regemp2" element={<Regemp2 />} />
       <Route path="/rep" element={<Report />} />
-      <Route path="/roster" element={<Roster />} />
+      <Route path="/rosterB" element={<RosterB />} />
+      <Route path="rosterS" element={<RosterS />} />
       <Route path="/customer" element={<RegCus />} />
       <Route path="/customer2" element={<RegCus2 />} />
       <Route path="/logger" element={<Logger />} />

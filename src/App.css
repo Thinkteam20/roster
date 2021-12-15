@@ -257,6 +257,14 @@ td {
 tr.ui-widget-content.ui-datatable-even:hover {
   background-color: grey;
 }
+
+.confirmFlex {
+  width: 700px;
+  /* background-color: var(--color-orange); */
+  display: flex;
+  margin: auto;
+  justify-content: space-between;
+}
 @media screen and (max-height: 800px) {
   .landing-bottom {
     background: url("../assets/dior.jpeg") center/cover no-repeat;
@@ -266,4 +274,10 @@ tr.ui-widget-content.ui-datatable-even:hover {
     bottom: 0;
     border-radius: 3%;
   }
+}
+/* Roster */
+.fixed-button {
+  position: fixed;
+  right: 10px;
+  top: 100px;
 }

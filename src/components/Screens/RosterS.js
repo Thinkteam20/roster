@@ -1,17 +1,17 @@
 import React from "react";
-import Scheduler from "../Scheduler.js";
+import SchedulerS from "../SchedulerS.js";
 import "../../App.css";
 import HeaderTile from "../Morecules/HeaderTile.js";
 
-function Roster() {
+function RosterS() {
   return (
     <>
       <div id="roster" className="section se">
         <HeaderTile tileTitle="Roster" tileName="" />
-        <h1>Roster</h1>
+        <h1>Roster(Sydney)</h1>
         <div className="roster">
           <div className="scheduler">
-            <Scheduler />
+            <SchedulerS />
           </div>
         </div>
       </div>
@@ -19,4 +19,4 @@ function Roster() {
   );
 }
 
-export default Roster;
+export default RosterS;

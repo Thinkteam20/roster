@@ -10,76 +10,43 @@ import "../App.css";
 export const ReportSheet = () => {
   const [products, setProducts] = useState([
     {
-      id: "1000",
-      code: "f230fh0g3",
-      name: "Bamboo Watch",
-      description: "Product Description",
-      image: "bamboo-watch.jpg",
-      price: 65,
-      category: "Accessories",
-      quantity: 24,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-    {
-      id: "1001",
-      code: "nvklal433",
-      name: "Black Watch",
-      description: "Product Description",
-      image: "black-watch.jpg",
-      price: 72,
-      category: "Accessories",
-      quantity: 61,
-      inventoryStatus: "INSTOCK",
-      rating: 4,
-    },
-    {
-      id: "1002",
-      code: "zz21cz3c1",
-      name: "Blue Band",
-      description: "Product Description",
-      image: "blue-band.jpg",
-      price: 79,
-      category: "Fitness",
-      quantity: 2,
-      inventoryStatus: "LOWSTOCK",
-      rating: 3,
-    },
-    {
-      id: "1003",
-      code: "244wgerg2",
-      name: "Blue T-Shirt",
-      description: "Product Description",
-      image: "blue-t-shirt.jpg",
-      price: 29,
-      category: "Clothing",
-      quantity: 25,
-      inventoryStatus: "INSTOCK",
-      rating: 5,
-    },
-    {
-      id: "1004",
-      code: "h456wer53",
+      date: "Mon",
+      id: "5555",
       name: "Bracelet",
-      description: "Product Description",
-      image: "bracelet.jpg",
-      price: 15,
-      category: "Accessories",
+      role: "Mop",
+      start: "2021-11-23T12:30:00Z",
+      end: "2021-11-23T15:30:00Z",
+      description:
+        "Product Description Product Description Product Description Product Description",
+      wage: 15,
+      site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
       quantity: 73,
-      inventoryStatus: "INSTOCK",
-      rating: 4,
     },
     {
-      id: "1005",
-      code: "av2231fwg",
-      name: "Brown Purse",
-      description: "Product Description",
-      image: "brown-purse.jpg",
-      price: 120,
-      category: "Accessories",
-      quantity: 0,
-      inventoryStatus: "OUTOFSTOCK",
-      rating: 4,
+      date: "Mon",
+      id: "5555",
+      name: "James",
+      role: "Mop",
+      start: "2021-11-23T12:30:00Z",
+      end: "2021-11-23T15:30:00Z",
+      description:
+        "Product Description Product Description Product Description Product Description",
+      wage: 15,
+      site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
+      quantity: 73,
+    },
+    {
+      date: "Tue",
+      id: "5555",
+      name: "Mina",
+      role: "Mop",
+      start: "2021-11-23T12:30:00Z",
+      end: "2021-11-23T15:30:00Z",
+      description:
+        "Product Description Product Description Product Description Product Description",
+      wage: 15,
+      site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
+      quantity: 73,
     },
   ]);
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -92,13 +59,13 @@ export const ReportSheet = () => {
   const toast = useRef(null);
 
   const cols = [
-    { field: "code", header: "Code" },
-    { field: "name", header: "Name" },
-    { field: "category", header: "Category" },
-    { field: "quantity", header: "Quantity" },
-    { field: "quantity", header: "Quantity" },
-    { field: "quantity", header: "Quantity" },
-    { field: "quantity", header: "Quantity" },
+    { field: "date", header: "Date" },
+    { field: "site", header: "Site" },
+    { field: "description", header: "Description" },
+    { field: "name", header: "Employee" },
+    { field: "start", header: "start" },
+    { field: "end", header: "end" },
+    { field: "role", header: "Role" },
   ];
 
   const exportColumns = cols.map((col) => ({
@@ -179,7 +146,7 @@ export const ReportSheet = () => {
       import("jspdf-autotable").then(() => {
         const doc = new jsPDF.default(0, 0);
         doc.autoTable(exportColumns, products);
-        doc.save("products.pdf");
+        doc.save("weekly-roster-iffice.pdf");
       });
     });
   };

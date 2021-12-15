@@ -49,15 +49,14 @@ function RegCus() {
     site: "",
     roles: "",
     location: "",
+    groupId: "",
   };
 
   const [products, setProducts] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [log, setLog] = useState();
   const [productDialog, setProductDialog] = useState(false);
   const [deleteProductDialog, setDeleteProductDialog] = useState(false);
   const [deleteProductsDialog, setDeleteProductsDialog] = useState(false);
-  const [product, setProduct] = useState(events);
+  const [product, setProduct] = useState(emptyProduct);
   const [selectedProducts, setSelectedProducts] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [globalFilter, setGlobalFilter] = useState(null);
@@ -72,21 +71,6 @@ function RegCus() {
       setProducts(JSON.parse(logs));
     });
   }, []);
-
-  const sites = [
-    { name: "Burberry - CBD Queens Plaza" },
-    { name: "Bvlgari - CBD Queens Plaza" },
-    { name: "Chanel - CBD Queens Plaza" },
-    { name: "Chanel - Westfield Carindale" },
-    { name: "Gucci - CBD Brisbane Fashion Boutique" },
-    { name: "Gucci - CBD Brisbane Watches & Jewelleries" },
-    { name: "Longchamp - CBD Tattersall Arcade" },
-    { name: "Louis Vuitton - CBD Queens Plaza" },
-    { name: "Paspaley - CBD Queens Plaza" },
-    { name: "Tag Heuer - CBD MacArthur Central Shopping Centre" },
-    { name: "The Hour Glass - CBD Edward Street" },
-    { name: "Yves Saint Laurent - CBD Queens Plaza" },
-  ];
 
   const formatCurrency = (value) => {
     return value;
@@ -113,17 +97,17 @@ function RegCus() {
 
   const saveProduct = () => {
     setSubmitted(true);
-
     if (product.title.trim()) {
       let _products = [...products];
       let _product = { ...product };
-      // console.log(_product);
-      let _deleteTarget = product.resouceid;
-      if (product.id) {
-        const index = findIndexById(product.id);
+      console.log(_product);
+      let _deleteTarget = product.groupId;
+      console.log(_deleteTarget);
+      if (product.groupId) {
+        const index = findIndexById(product.groupId);
         _products[index] = _product;
-        // console.log(_deleteTarget);
-        ipcRenderer.send("cusb:update", _deleteTarget, _product);
+        console.log(_deleteTarget);
+        // ipcRenderer.send("cusb:update", _deleteTarget, _product);
         setProducts(_products);
         toast.current.show({
           severity: "success",
@@ -132,8 +116,7 @@ function RegCus() {
           life: 3000,
         });
       } else {
-        _product.id = createId();
-        // _product.image = "product-placeholder.svg";
+        _product.groupId = createGroupId();
         _products.push(_product);
         ipcRenderer.send("cusb:add", _products);
         setProducts(_products);
@@ -182,15 +165,15 @@ function RegCus() {
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Product Deleted",
+      detail: "Employ Deleted",
       life: 3000,
     });
   };
 
-  const findIndexById = (id) => {
+  const findIndexById = (groupId) => {
     let index = -1;
     for (let i = 0; i < products.length; i++) {
-      if (products[i].id === id) {
+      if (products[i].groupId === groupId) {
         index = i;
         break;
       }
@@ -199,14 +182,13 @@ function RegCus() {
     return index;
   };
 
-  const createId = () => {
-    let id = "";
-    let chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const createGroupId = () => {
+    let GroupId = "";
+    let chars = "0123456789";
     for (let i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
+      GroupId += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return id;
+    return GroupId;
   };
 
   const importCSV = (e) => {
@@ -263,7 +245,7 @@ function RegCus() {
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Products Deleted",
+      detail: "Employees Deleted",
       life: 3000,
     });
   };
@@ -668,16 +650,6 @@ function RegCus() {
             </div>
           </Dialog>
         </div>
-      </div>
-      <div>
-        <h1>testing db</h1>
-        <header className="App-header"></header>
-        <h3 className={loading ? "loading" : ""}>
-          {(products && JSON.stringify(products, null, 2)) ||
-            "No query results yet!"}
-        </h3>
-        <button onClick={createCus}>create</button>
-        {/* <button onClick={createCuswithEvent}>events</button> */}
       </div>
     </section>
   );

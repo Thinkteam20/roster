@@ -112,12 +112,12 @@ function RegEmp() {
     if (product.name.trim()) {
       let _products = [...products];
       let _product = { ...product };
-      // console.log(_product);
+      console.log(_product);
       let _deleteTarget = product.id;
       if (product.id) {
         const index = findIndexById(product.id);
         _products[index] = _product;
-        // console.log(_deleteTarget);
+        console.log(_deleteTarget);
         ipcRenderer.send("logs:update", _deleteTarget, _product);
         setProducts(_products);
         toast.current.show({

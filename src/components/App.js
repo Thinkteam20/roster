@@ -40,6 +40,9 @@ const items = [
       },
       {
         label: "Customer(Sydney)",
+        command: () => {
+          window.location.hash = "/customer2";
+        },
       },
     ],
   },
@@ -61,10 +64,10 @@ const App = () => {
             <h1>Welcome to Iffice Roster</h1>
             {/* <img className="App-logo" src={logo} alt="" /> */}
             <div className="Site-place">
-              <Link to="/roster">
+              <Link to="/rosterB">
                 <SitePlace name="BRISBANE" />
               </Link>
-              <Link to="logger">
+              <Link to="/rosterS">
                 <SitePlace name="SYDNEY" />
               </Link>
             </div>

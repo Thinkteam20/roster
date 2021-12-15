@@ -1,7 +1,7 @@
 #tile {
   width: 100%;
   background: #1a1a1a;
-  border-bottom: 1px solid #00c6c0;
+  border-bottom: 3px solid #00c6c0;
   display: grid;
   grid-template-columns: 35% auto 35%;
   align-items: center;

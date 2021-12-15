@@ -112,12 +112,12 @@ function RegEmp2() {
     if (product.name.trim()) {
       let _products = [...products];
       let _product = { ...product };
-      // console.log(_product);
+      console.log(_product);
       let _deleteTarget = product.id;
       if (product.id) {
         const index = findIndexById(product.id);
         _products[index] = _product;
-        // console.log(_deleteTarget);
+        console.log(_deleteTarget);
         ipcRenderer.send("logs2:update", _deleteTarget, _product);
         setProducts(_products);
         toast.current.show({
@@ -169,7 +169,7 @@ function RegEmp2() {
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Product Deleted",
+      detail: "Employ Deleted",
       life: 3000,
     });
   };
@@ -250,7 +250,7 @@ function RegEmp2() {
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Products Deleted",
+      detail: "Employees Deleted",
       life: 3000,
     });
   };
@@ -755,14 +755,6 @@ function RegEmp2() {
           </Dialog>
         </div>
       </div>
-      {/* <div>
-        <h1>testing db</h1>
-        <header className="App-header"></header>
-        <h3 className={loading ? "loading" : ""}>
-          {(response && JSON.stringify(products, null, 2)) ||
-            "No query results yet!"}
-        </h3>
-      </div> */}
     </section>
   );
 }

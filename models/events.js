@@ -6,6 +6,7 @@ const eventSchema = new mongoose.Schema({
   start: String,
   end: String,
   backgroundColor: String,
+  recronizedId: "",
 });
 
 module.exports = mongoose.model("event", eventSchema);

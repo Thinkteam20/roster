@@ -6,6 +6,7 @@ const connectDb = require("./config/db");
 const Log = require("./models/log");
 const Log2 = require("./models/log2");
 const Cusb = require("./models/customer");
+const Cusc = require("./models/customer2");
 const Event = require("./models/events");
 const { constants } = require("buffer");
 const { nextTick } = require("process");
@@ -182,7 +183,16 @@ async function sendCusb() {
   }
 }
 ipcMain.on("cusb:load", sendCusb);
-
+// create cusb
+ipcMain.on("cusb:add", async (e, item) => {
+  console.log(item);
+  try {
+    await Cusb.create(item);
+    sendCusb();
+  } catch (err) {
+    console.log(err);
+  }
+});
 // delete cusb
 ipcMain.on("cusb:delete", async (e, _id) => {
   try {
@@ -196,9 +206,50 @@ ipcMain.on("cusb:delete", async (e, _id) => {
 // update cusb
 ipcMain.on("cusb:update", async (e, _deleteTarget, updated) => {
   try {
-    console.log(`delete target id is `, _deleteTarget);
+    console.log(`delete target groupId is `, _deleteTarget);
     console.log(`new updates details`, updated);
-    await Log.findOneAndUpdate({ id: _deleteTarget }, updated);
+    await Cusb.findOneAndUpdate({ groupId: _deleteTarget }, updated);
+  } catch (err) {
+    console.log(err);
+  }
+});
+// cusc CRUD
+async function sendCusc() {
+  try {
+    const cusc = await Cusc.find();
+    mainWindow.webContents.send("cusc:get", JSON.stringify(cusc));
+  } catch (err) {
+    console.log(err);
+  }
+}
+ipcMain.on("cusc:load", sendCusc);
+
+// create cusc
+ipcMain.on("cusc:add", async (e, item) => {
+  console.log(item);
+  try {
+    await Cusc.create(item);
+    sendCusc();
+  } catch (err) {
+    console.log(err);
+  }
+});
+// delete cusc
+ipcMain.on("cusc:delete", async (e, _id) => {
+  try {
+    console.log(_id);
+    await Cusc.findOneAndDelete({ id: _id });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// update cusc
+ipcMain.on("cusc:update", async (e, _deleteTarget, updated) => {
+  try {
+    console.log(`delete target groupId is `, _deleteTarget);
+    console.log(`new updates details`, updated);
+    await Cusc.findOneAndUpdate({ groupId: _deleteTarget }, updated);
   } catch (err) {
     console.log(err);
   }
@@ -250,16 +301,6 @@ ipcMain.on("createCustomer", async function (e, args) {
   // });
 });
 
-// create cusb
-ipcMain.on("cusb:add", async (e, item) => {
-  console.log(item);
-  try {
-    await Cusb.create(item);
-    sendCusb();
-  } catch (err) {
-    console.log(err);
-  }
-});
 //
 
 // ********************************************

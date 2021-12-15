@@ -66,8 +66,8 @@ function RegCus() {
   const dt = useRef(null);
 
   useEffect(() => {
-    ipcRenderer.send("cusb:load");
-    ipcRenderer.on("cusb:get", (e, logs) => {
+    ipcRenderer.send("cusc:load");
+    ipcRenderer.on("cusc:get", (e, logs) => {
       console.log("get data from Mongo db");
       setProducts(JSON.parse(logs));
     });
@@ -113,16 +113,40 @@ function RegCus() {
 
   const saveProduct = () => {
     setSubmitted(true);
-    ipcRenderer.send("cusb:add", product);
-    setLogs(product);
-    toast.current.show({
-      severity: "success",
-      summary: "Successful",
-      detail: "Product Created",
-      life: 3000,
-    });
-    setProductDialog(false);
-    setProduct(emptyProduct);
+    if (product.title.trim()) {
+      let _products = [...products];
+      let _product = { ...product };
+      console.log(_product);
+      let _deleteTarget = product.groupId;
+      console.log(_deleteTarget);
+      if (product.groupId) {
+        const index = findIndexById(product.groupId);
+        _products[index] = _product;
+        console.log(_deleteTarget, _products[index]);
+        ipcRenderer.send("cusc:update", _deleteTarget, _product);
+        setProducts(_products);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Updated",
+          life: 3000,
+        });
+      } else {
+        _product.groupId = createGroupId();
+        _products.push(_product);
+        ipcRenderer.send("cusc:add", _products);
+        setProducts(_products);
+        toast.current.show({
+          severity: "success",
+          summary: "Successful",
+          detail: "Product Created",
+          life: 3000,
+        });
+      }
+      setProducts(_products);
+      setProductDialog(false);
+      setProduct(emptyProduct);
+    }
   };
 
   const createCus = () => {
@@ -150,14 +174,14 @@ function RegCus() {
     let _selected = products.filter((val) => val.name === product.name);
     let deleteTarget = product.id;
     console.log(deleteTarget);
-    ipcRenderer.send("logs:delete", deleteTarget);
+    ipcRenderer.send("cusc:delete", deleteTarget);
     setProducts(_products);
     setDeleteProductDialog(false);
     setProduct(emptyProduct);
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Product Deleted",
+      detail: "Customer Deleted",
       life: 3000,
     });
   };
@@ -174,14 +198,13 @@ function RegCus() {
     return index;
   };
 
-  const createId = () => {
-    let id = "";
-    let chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  const createGroupId = () => {
+    let GroupId = "";
+    let chars = "0123456789";
     for (let i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
+      GroupId += chars.charAt(Math.floor(Math.random() * chars.length));
     }
-    return id;
+    return GroupId;
   };
 
   const importCSV = (e) => {
@@ -238,7 +261,7 @@ function RegCus() {
     toast.current.show({
       severity: "success",
       summary: "Successful",
-      detail: "Products Deleted",
+      detail: "Customer Deleted",
       life: 3000,
     });
   };
@@ -526,18 +549,18 @@ function RegCus() {
             onHide={hideDialog}
           >
             <div className="p-field">
-              <label htmlFor="name">groupId</label>
+              <label htmlFor="name">GroupId</label>
               <InputText
-                id="groupId"
-                value={product.groupId}
-                onChange={(e) => onInputChange(e, "groupId")}
+                id="id"
+                value={product.id}
+                onChange={(e) => onInputChange(e, "id")}
                 required
                 autoFocus
                 className={classNames({
-                  "p-invalid": submitted && !product.groupId,
+                  "p-invalid": submitted && !product.id,
                 })}
               />
-              {submitted && !product.groupId && (
+              {submitted && !product.id && (
                 <small className="p-error">groupId is required.</small>
               )}
             </div>
@@ -555,27 +578,49 @@ function RegCus() {
             </div>
 
             <div className="p-field">
-              <label htmlFor="category5">Start Time</label>
-              <input type="datetime-local" onChange={onTimeStartChange} />
+              <label htmlFor="site">Site</label>
+              <InputText
+                id="site"
+                value={product.site}
+                onChange={(e) => onInputChange(e, "site")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !product.site,
+                })}
+              />
+              {submitted && !product.site && (
+                <small className="p-error">Site is required.</small>
+              )}
             </div>
 
             <div className="p-field">
-              <label htmlFor="category5">End Time</label>
-              <input type="datetime-local" onChange={onTimeEndChange} />
+              <label htmlFor="roles">Roles</label>
+              <InputText
+                id="roles"
+                value={product.roles}
+                onChange={(e) => onInputChange(e, "roles")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !product.roles,
+                })}
+              />
+              {submitted && !product.roles && (
+                <small className="p-error">Roles is required.</small>
+              )}
             </div>
 
-            <div className="p-formgrid p-grid">
-              <div className="p-field p-col">
-                <label htmlFor="quantity">Quantity</label>
-                <InputNumber
-                  id="backgroundColor"
-                  value={product.backgroundColor}
-                  onValueChange={(e) =>
-                    onInputNumberChange(e, "backgroundColor")
-                  }
-                  integeronly
-                />
-              </div>
+            <div className="p-field">
+              <label htmlFor="location">Location</label>
+              <InputTextarea
+                id="location"
+                value={product.location}
+                onChange={(e) => onInputChange(e, "location")}
+                required
+                rows={3}
+                cols={20}
+              />
             </div>
           </Dialog>
 
@@ -621,16 +666,6 @@ function RegCus() {
             </div>
           </Dialog>
         </div>
-      </div>
-      <div>
-        <h1>testing db</h1>
-        <header className="App-header"></header>
-        <h3 className={loading ? "loading" : ""}>
-          {(products && JSON.stringify(products, null, 2)) ||
-            "No query results yet!"}
-        </h3>
-        <button onClick={createCus}>create</button>
-        {/* <button onClick={createCuswithEvent}>events</button> */}
       </div>
     </section>
   );
