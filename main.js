@@ -16,7 +16,6 @@ const { sendEmail } = require("./models/nodemailer");
 // db connect
 connectDb().then(console.log("MongoDB connected!")).catch(console.error);
 let mainWindow;
-
 let isDev = false;
 
 if (

@@ -22,7 +22,7 @@ import "../../../App.css";
 // import addTable from "../../../message-control/addEmp.js";
 // import addValueAsync from "../../../message-control/addValue.js";
 
-function RegCus() {
+function RegCus2() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState([]);
   const [dataNumber, setDatanNumber] = useState();
@@ -673,4 +673,4 @@ function RegCus() {
   );
 }
 
-export default RegCus;
+export default RegCus2;
