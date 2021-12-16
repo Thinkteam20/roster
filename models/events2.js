@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const eventSchema = new mongoose.Schema({
+const eventSchema2 = new mongoose.Schema({
   weekday: String,
   resourceId: String,
   title: String,
@@ -19,4 +19,4 @@ const eventSchema = new mongoose.Schema({
   email: { type: String },
 });
 
-module.exports = mongoose.model("event", eventSchema);
+module.exports = mongoose.model("event2", eventSchema2);
