@@ -8,8 +8,10 @@ const Log2 = require("./models/log2");
 const Cusb = require("./models/customer");
 const Cusc = require("./models/customer2");
 const Event = require("./models/events");
+const Event2 = require("./models/events2");
 const { constants } = require("buffer");
 const { nextTick } = require("process");
+const { sendEmail } = require("./models/nodemailer");
 
 // db connect
 connectDb().then(console.log("MongoDB connected!")).catch(console.error);
@@ -301,10 +303,53 @@ ipcMain.on("createCustomer", async function (e, args) {
   // });
 });
 
-//
+// Events
+async function sendEvents() {
+  try {
+    const events = await Event.find();
+    mainWindow.webContents.send("events:get", JSON.stringify(events));
+  } catch (err) {
+    console.log(err);
+  }
+}
+ipcMain.on("events:load", sendEvents);
+
+ipcMain.on("events:add", async (e, item) => {
+  console.log(item);
+  try {
+    await Event.create(item);
+    sendCusb();
+  } catch (err) {
+    console.log(err);
+  }
+});
+// Events Sydney
+async function sendEvents2() {
+  try {
+    const events2 = await Event2.find();
+    mainWindow.webContents.send("events2:get", JSON.stringify(events2));
+  } catch (err) {
+    console.log(err);
+  }
+}
+ipcMain.on("events2:load", sendEvents2);
+
+ipcMain.on("events2:add", async (e, item) => {
+  console.log(item);
+  try {
+    await Event2.create(item);
+    sendCusc();
+  } catch (err) {
+    console.log(err);
+  }
+});
 
 // ********************************************
-// run();
+
+// Node email
+ipcMain.on("node:email", (e) => {
+  sendEmail();
+});
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {

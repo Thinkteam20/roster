@@ -25,7 +25,7 @@ function HeaderTile(props) {
             label="Back"
             className="p-button-warning "
             onClick={() => {
-              window.location.hash = "/";
+              window.location.hash = props.before;
             }}
           />
           <Button
@@ -33,7 +33,7 @@ function HeaderTile(props) {
             className="p-button-warning"
             style={{ marginLeft: "3rem" }}
             onClick={() => {
-              window.location.hash = "/rep";
+              window.location.hash = props.next;
             }}
           />
         </div>

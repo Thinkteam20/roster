@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useEffect, useState, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid"; // a plugin!
 import timeGridPlugin from "@fullcalendar/timegrid";
@@ -38,8 +38,13 @@ function SchedulerB() {
   const [eventDialog, setEventDialog] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [dataEmp, setDataEmp] = useState();
+  const toast = useRef(null);
+  const [workemp, setWorkEmp] = useState(null);
+  const [empOption, setEmpOption] = useState();
+  const [eventCal, setEventCal] = useState([]);
 
   const emptyEvents = {
+    weekday: "",
     resourceId: "",
     title: "",
     start: "",
@@ -60,9 +65,13 @@ function SchedulerB() {
       console.log("get data from empb");
       setDataEmp(JSON.parse(logs));
     });
-  }, []);
-
-  // console.log(emptyEvents.push());
+    // get events Brisbane current list
+    ipcRenderer.send("events:load");
+    ipcRenderer.on("events:get", (e, logs) => {
+      console.log("get data from events B", logs);
+      setEventCal(JSON.parse(logs));
+    });
+  }, [setWorkEmp]);
 
   const recronizedId = () => {
     let GroupId = "";
@@ -72,43 +81,76 @@ function SchedulerB() {
     }
     return GroupId;
   };
+  const setWeekday = (data) => {
+    let time = data;
+    // console.log(time);
+    var options = {
+      weekday: "long",
+      // year: "numeric",
+      // month: "long",
+      // day: "numeric",
+      // hour: "2-digit",
+      // minute: "2-digit",
+      // second: "2-digit",
+      //hour12: false,
+    };
+
+    let dayofweek = new Date(time).toLocaleTimeString("en-us", options);
+    return dayofweek;
+  };
 
   const saveEvent = () => {
     setSubmitted(true);
     if (event.title.trim()) {
       let _events = [...events];
       let _event = { ...event };
+      // let _deleteTarget = event.recronizedId;
+      // if (event.id) {
+      //   const index = findIndexById(product.id);
+      //   _products[index] = _product;
+      //   console.log(_deleteTarget);
+      //   // ipcRenderer.send("cusb:update", _deleteTarget, _product);
+      //   setEvents(_products);
+      //   toast.current.show({
+      //     severity: "success",
+      //     summary: "Successful",
+      //     detail: "Updated",
+      //     life: 3000,
+      //   });
+      // } else {
+      _event.recronizedId = recronizedId();
+      _event.weekday = setWeekday(_event.start);
+      console.log(_event.weekday);
       console.log(_event);
-      let _deleteTarget = event.id;
-      console.log(_deleteTarget);
-      if (event.id) {
-        const index = findIndexById(product.id);
-        _products[index] = _product;
-        console.log(_deleteTarget);
-        // ipcRenderer.send("cusb:update", _deleteTarget, _product);
-        setProducts(_products);
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Updated",
-          life: 3000,
-        });
-      } else {
-        _product.groupId = createGroupId();
-        _products.push(_product);
-        // ipcRenderer.send("cusb:add", _products);
-        setProducts(_products);
-        toast.current.show({
-          severity: "success",
-          summary: "Successful",
-          detail: "Product Created",
-          life: 3000,
-        });
-      }
+      _events.push(_event);
+      ipcRenderer.send("events:add", _events);
+      setEvents(_events);
+      toast.current.show({
+        severity: "success",
+        summary: "Successful",
+        detail: "Product Created",
+        life: 3000,
+      });
+      // }
       setEvents(_events);
       setEventDialog(false);
-      setEvent(emptyProduct);
+      setEvent(emptyEvents);
     }
+  };
+  const listEmpData = () => {
+    const _data = dataEmp.map(({ name }) => ({ name }));
+    return _data;
+  };
+
+  const holdSelectedEmp = (e) => {
+    setWorkEmp(e.value);
+    // console.log(e.target.value);
+    // let _event = { ...event };
+    // _product["site"] = e.value["name"];
+    // let merged = Object.assign(_event, workemp);
+    // console.log(merged);
+    // setProduct(_product);
+    // console.log(e.value);
   };
 
   const openNewEvent = () => {
@@ -149,6 +191,14 @@ function SchedulerB() {
 
     setEvent(_event);
   };
+
+  const onEmpChange = (e) => {
+    console.log(e.value);
+    setWorkEmp(e.value);
+    // let _event = { ...event };
+    // _product["site"] = e.value["name"];
+    // setProduct(_product);
+  };
   const eventDialogFooter = (
     <React.Fragment>
       <Button
@@ -168,54 +218,91 @@ function SchedulerB() {
   return (
     <>
       <div className="EventsDialog">
-        <Dialog
-          visible={eventDialog}
-          style={{ width: "700px", height: "450px" }}
-          header="Add new Roster events"
-          modal
-          className="p-fluid"
-          footer={eventDialogFooter}
-          onHide={hideDialog}
-        >
-          <div className="p-field">
-            <label htmlFor="resourceId">resourceId</label>
-            <InputText
-              id="resourceId"
-              value={event.resourceId}
-              onChange={(e) => onInputChange(e, "resourceId")}
-              required
-              autoFocus
-              className={classNames({
-                "p-invalid": submitted && !event.resourceId,
-              })}
-            />
-            {submitted && !event.id && (
-              <small className="p-error">eventId is required.</small>
-            )}
-          </div>
+        {dataEmp && (
+          <Dialog
+            visible={eventDialog}
+            style={{ width: "700px", height: "450px" }}
+            header="Add new Roster events"
+            modal
+            className="p-fluid"
+            footer={eventDialogFooter}
+            onHide={hideDialog}
+          >
+            <div className="p-field">
+              <label htmlFor="resourceId">resourceId</label>
+              <InputText
+                id="resourceId"
+                value={event.resourceId}
+                onChange={(e) => onInputChange(e, "resourceId")}
+                required
+                autoFocus
+                className={classNames({
+                  "p-invalid": submitted && !event.resourceId,
+                })}
+              />
+              {submitted && !event.resourceId && (
+                <small className="p-error">eventId is required.</small>
+              )}
+            </div>
 
-          <div className="p-field">
-            <label htmlFor="description">title</label>
-            <InputTextarea
-              id="title"
-              value={event.title}
-              onChange={(e) => onTitleChange(e, "title")}
-              required
-              rows={3}
-              cols={20}
-            />
-          </div>
+            <div className="p-field">
+              <label htmlFor="description">title</label>
+              <InputTextarea
+                id="title"
+                value={event.title}
+                onChange={(e) => onTitleChange(e, "title")}
+                required
+                rows={3}
+                cols={20}
+              />
+            </div>
 
-          <div className="p-field">
-            <label htmlFor="category5">Start Time</label>
-            <input type="datetime-local" onChange={onTimeStartChange} />
-          </div>
+            {/* <div className="p-field">
+              <label htmlFor="category5">Start Time</label>
+              <input type="datetime-local" onChange={onTimeStartChange} />
+            </div>
 
-          <div className="p-field">
-            <label htmlFor="category5">End Time</label>
-            <input type="datetime-local" onChange={onTimeEndChange} />
-          </div>
-        </Dialog>
+            <div className="p-field">
+              <label htmlFor="category5">End Time</label>
+              <input type="datetime-local" onChange={onTimeEndChange} />
+            </div> */}
+
+            <div className="p-field p-col">
+              <label htmlFor="availableEmp">Available Empoyees</label>
+
+              {/* <div>
+                {dataEmp.map((item) => (
+                  <button
+                    value={workemp}
+                    key={item.id}
+                    onClick={holdSelectedEmp}
+                  >
+                    {item.name}
+                  </button>
+                ))}
+              </div> */}
+            </div>
+            <div className="p-field p-col">
+              <label htmlFor="quantity">-</label>
+
+              <Dropdown
+                value={workemp}
+                options={dataEmp}
+                onChange={function (e) {
+                  console.log(e.target.value);
+                  setWorkEmp(e.target.value);
+                  let _initialValue = e.target.value;
+                  let _event = { ...event };
+                  const _merged = Object.assign(_event, e.target.value);
+                  console.log(_merged);
+                  setEvent(_merged);
+                }}
+                optionLabel="name"
+                placeholder="Select Employee"
+              />
+            </div>
+          </Dialog>
+        )}
       </div>
       <div className="fixed-button">
         <Button
@@ -224,6 +311,7 @@ function SchedulerB() {
           onClick={openNewEvent}
         />
       </div>
+      <Toast ref={toast} />
       <FullCalendar
         height="650px"
         schedulerLicenseKey="CC-Attribution-NonCommercial-NoDerivatives"
@@ -242,15 +330,22 @@ function SchedulerB() {
         ]}
         // slotDuration={(days = 1)}
         initialView="resourceTimelineDay"
+        // slotDuration={"24:00:00"}
+        allDayMaintainDuration={false}
         resourceGroupField="site"
+        // slotDuration={"24:00:00"}
+        // slotMinTime={"00:00:00"}
+        // slotMaxTime={"00:00:00"}
+        nowIndicator={false}
         resources={column}
         customButtons={{
           custom: {
             text: "Iffice",
             views: {
               week: {
-                type: "agenda",
-                duration: { days: 1 },
+                type: "timeline",
+                allDaySlot: "true",
+                buttonText: "Custom Week",
                 groupByResource: true,
               },
             },
@@ -264,11 +359,11 @@ function SchedulerB() {
           },
         }}
         editable="true"
-        events={getEvents}
+        events={eventCal}
         headerToolbar={{
           left: "prev next",
           center: "title",
-          right: "resourceTimelineDay",
+          right: "custom,timeGridWeek",
         }}
       />
     </>

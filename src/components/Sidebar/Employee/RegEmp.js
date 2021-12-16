@@ -441,6 +441,7 @@ function RegEmp() {
   };
 
   const onSitesChange = (e) => {
+    // console.log(e.value);
     setWorksites(e.value);
     let _product = { ...product };
     _product["site"] = e.value["name"];
@@ -554,7 +555,12 @@ function RegEmp() {
 
   return (
     <section id="emp-landing" className="section section__container">
-      <HeaderTile tileTitle="ADD EMPLOYEES" tileName="Brisbane" />
+      <HeaderTile
+        tileTitle="ADD EMPLOYEES"
+        tileName="Brisbane"
+        before="/"
+        next=""
+      />
       <h1>Employees</h1>
       <div className="emp-table">
         <div className="datatable-crud-demo">
@@ -755,14 +761,6 @@ function RegEmp() {
           </Dialog>
         </div>
       </div>
-      {/* <div>
-        <h1>testing db</h1>
-        <header className="App-header"></header>
-        <h3 className={loading ? "loading" : ""}>
-          {(response && JSON.stringify(products, null, 2)) ||
-            "No query results yet!"}
-        </h3>
-      </div> */}
     </section>
   );
 }

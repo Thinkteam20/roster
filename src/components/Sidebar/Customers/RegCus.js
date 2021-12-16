@@ -511,6 +511,8 @@ function RegCus() {
       <HeaderTile
         tileTitle="ADD Customer (Brisbane)"
         tileName="Brisbane Customers"
+        before="/"
+        next=""
       />
       <div className="emp-table">
         <div className="datatable-crud-demo">

@@ -6,49 +6,11 @@ import { FileUpload } from "primereact/fileupload";
 import { Tooltip } from "primereact/tooltip";
 import { Toast } from "primereact/toast";
 import "../App.css";
+import { ipcRenderer } from "electron";
 
 export const ReportSheet = () => {
-  const [products, setProducts] = useState([
-    {
-      date: "Mon",
-      id: "5555",
-      name: "Bracelet",
-      role: "Mop",
-      start: "2021-11-23T12:30:00Z",
-      end: "2021-11-23T15:30:00Z",
-      description:
-        "Product Description Product Description Product Description Product Description",
-      wage: 15,
-      site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
-      quantity: 73,
-    },
-    {
-      date: "Mon",
-      id: "5555",
-      name: "James",
-      role: "Mop",
-      start: "2021-11-23T12:30:00Z",
-      end: "2021-11-23T15:30:00Z",
-      description:
-        "Product Description Product Description Product Description Product Description",
-      wage: 15,
-      site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
-      quantity: 73,
-    },
-    {
-      date: "Tue",
-      id: "5555",
-      name: "Mina",
-      role: "Mop",
-      start: "2021-11-23T12:30:00Z",
-      end: "2021-11-23T15:30:00Z",
-      description:
-        "Product Description Product Description Product Description Product Description",
-      wage: 15,
-      site: "Shop GL-05, Queens Plaza, 226 Queen Street, Brisbane CBD, QLD 4000",
-      quantity: 73,
-    },
-  ]);
+  const [products, setProducts] = useState([]);
+  const [reportValue, setReportValue] = useState([]);
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [importedData, setImportedData] = useState([]);
   const [selectedImportedData, setSelectedImportedData] = useState([]);
@@ -58,8 +20,36 @@ export const ReportSheet = () => {
   const dt = useRef(null);
   const toast = useRef(null);
 
+  useEffect(() => {
+    ipcRenderer.send("events:load");
+    ipcRenderer.on("events:get", (e, logs) => {
+      console.log("get data from events B", logs);
+      setProducts(JSON.parse(logs));
+    });
+  }, []);
+
+  // function changeweekofdate(data) {
+  //   let time = data.map(({ start }) => ({ start }.start));
+  //   // console.log(time);
+  //   var options = {
+  //     weekday: "long",
+  //     // year: "numeric",
+  //     // month: "long",
+  //     // day: "numeric",
+  //     // hour: "2-digit",
+  //     // minute: "2-digit",
+  //     // second: "2-digit",
+  //     hour12: false,
+  //   };
+  //   for (let i = 0; i < time.length; i++) {
+  //     let dayofweek = new Date(time[i]).toLocaleTimeString("en-us", options);
+  //     console.log(dayofweek);
+  //   }
+  // }
+  // changeweekofdate(products);
+
   const cols = [
-    { field: "date", header: "Date" },
+    { field: "weekday", header: "Date" },
     { field: "site", header: "Site" },
     { field: "description", header: "Description" },
     { field: "name", header: "Employee" },

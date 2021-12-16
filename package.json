@@ -36,6 +36,7 @@
     "jspdf-autotable": "^3.5.23",
     "mongodb": "^4.2.1",
     "mongoose": "^6.0.14",
+    "nodemailer": "^6.7.2",
     "primeicons": "^5.0.0",
     "primereact": "^7.0.1",
     "react": "^16.13.1",

@@ -8,6 +8,13 @@
   text-align: center;
 }
 
+.fc-timeline-header-row fc-timeline-header-row-chrono {
+  display: none !important;
+}
+.fc-content span.fc-time .fc-timeline-slot-frame {
+  display: inline-block !important;
+}
+
 .roster {
   text-align: center;
   justify-content: flex;

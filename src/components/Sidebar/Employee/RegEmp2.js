@@ -554,7 +554,12 @@ function RegEmp2() {
 
   return (
     <section id="emp-landing" className="section section__container">
-      <HeaderTile tileTitle="ADD EMPLOYEES" tileName="Sydney" />
+      <HeaderTile
+        tileTitle="ADD EMPLOYEES"
+        tileName="Sydney"
+        before="/"
+        next=""
+      />
       <h1>Employees</h1>
       <div className="emp-table">
         <div className="datatable-crud-demo">
