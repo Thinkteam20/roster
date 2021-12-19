@@ -13,6 +13,8 @@ const { constants } = require("buffer");
 const { nextTick } = require("process");
 const { sendEmail } = require("./models/nodemailer");
 
+
+
 // db connect
 connectDb().then(console.log("MongoDB connected!")).catch(console.error);
 let mainWindow;
@@ -26,6 +28,8 @@ if (
 }
 
 function createMainWindow() {
+  
+
   mainWindow = new BrowserWindow({
     width: 1500,
     height: 1000,
@@ -35,6 +39,8 @@ function createMainWindow() {
       nodeIntegration: true,
     },
   });
+
+
 
   let indexPath;
 

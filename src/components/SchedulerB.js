@@ -29,7 +29,7 @@ import "../styles/Scheduler.css";
 import getEvents from "../Data/Event.js";
 import { ipcRenderer } from "electron";
 
-function SchedulerB() {
+function SchedulerS() {
   const calenderRef = createRef();
   const [event, setEvent] = useState([]);
   const [events, setEvents] = useState([]);
@@ -56,19 +56,21 @@ function SchedulerB() {
   useEffect(() => {
     ipcRenderer.send("cusb:load");
     ipcRenderer.on("cusb:get", (e, logs) => {
-      console.log("get data from Cusb");
+      console.log("get data from Mongo db");
+      // console.log(logs);
+      // setProducts(logs);
       setColumn(JSON.parse(logs));
     });
     // get emp Brisbane current list
     ipcRenderer.send("logs:load");
     ipcRenderer.on("logs:get", (e, logs) => {
-      console.log("get data from empb");
+      console.log("get data from empS");
       setDataEmp(JSON.parse(logs));
     });
     // get events Brisbane current list
     ipcRenderer.send("events:load");
     ipcRenderer.on("events:get", (e, logs) => {
-      console.log("get data from events B", logs);
+      console.log("get data from events S", logs);
       setEventCal(JSON.parse(logs));
     });
   }, [workemp, events]);
@@ -310,11 +312,6 @@ function SchedulerB() {
           className="p-button-danger"
           onClick={openNewEvent}
         />
-        <Button
-          label="Clear Events"
-          className="p-button-"
-          onClick={clearEvents}
-        />
       </div>
       <Toast ref={toast} />
       <FullCalendar
@@ -365,10 +362,6 @@ function SchedulerB() {
         }}
         editable="true"
         events={eventCal}
-        // eventClick={function () {
-        //   alert("clicked!");
-        //   window.open("", "MsgWindow", "width=200,height=100");
-        // }}
         headerToolbar={{
           left: "prev next",
           center: "title",
@@ -379,5 +372,5 @@ function SchedulerB() {
   );
 }
 
-export default SchedulerB;
+export default SchedulerS;
 // custom,timeGridWeek,

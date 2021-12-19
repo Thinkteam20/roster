@@ -7,7 +7,7 @@ function RosterS() {
   return (
     <>
       <div id="roster" className="section se">
-        <HeaderTile tileTitle="Roster" tileName="" before="/" next="/reps" />
+        <HeaderTile tileTitle="Roster" tileName="Sydney" before="/" next="/reps" />
         <h1>Roster(Sydney)</h1>
         <div className="roster">
           <div className="scheduler">
