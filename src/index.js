@@ -6,6 +6,7 @@ import "./App.css";
 import RegEmp from "./components/Sidebar/Employee/RegEmp.js";
 import Regemp2 from "./components/Sidebar/Employee/RegEmp2";
 import Report from "./components/Screens/Report.js";
+import ReportS from "./components/Screens/ReportS.js";
 import RosterB from "./components/Screens/RosterB.js";
 import RosterS from "./components/Screens/RosterS.js";
 import RegCus from "./components/Sidebar/Customers/RegCus.js";
@@ -26,6 +27,7 @@ render(
       <Route path="/regemp" element={<RegEmp />} />
       <Route path="/regemp2" element={<Regemp2 />} />
       <Route path="/rep" element={<Report />} />
+      <Route path="/reps" element={<ReportS />} />
       <Route path="/rosterB" element={<RosterB />} />
       <Route path="rosterS" element={<RosterS />} />
       <Route path="/customer" element={<RegCus />} />

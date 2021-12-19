@@ -300,13 +300,13 @@ function RegEmp2() {
           className="p-button-success p-mr-2"
           onClick={openNew}
         />
-        <Button
+        {/* <Button
           label="Delete"
           icon="pi pi-trash"
           className="p-button-danger"
           onClick={confirmDeleteSelected}
           disabled={!selectedProducts || !selectedProducts.length}
-        />
+        /> */}
       </React.Fragment>
     );
   };
@@ -314,7 +314,7 @@ function RegEmp2() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload
+        {/* <FileUpload
           mode="basic"
           name="demo[]"
           auto
@@ -323,7 +323,7 @@ function RegEmp2() {
           chooseLabel="Import"
           className="p-mr-2 p-d-inline-block"
           onUpload={importCSV}
-        />
+        /> */}
         <Button
           label="Export"
           icon="pi pi-upload"

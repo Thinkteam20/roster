@@ -300,13 +300,6 @@ function RegEmp() {
           className="p-button-success p-mr-2"
           onClick={openNew}
         />
-        <Button
-          label="Delete"
-          icon="pi pi-trash"
-          className="p-button-danger"
-          onClick={confirmDeleteSelected}
-          disabled={!selectedProducts || !selectedProducts.length}
-        />
       </React.Fragment>
     );
   };
@@ -314,16 +307,6 @@ function RegEmp() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload
-          mode="basic"
-          name="demo[]"
-          auto
-          url=""
-          accept=".csv"
-          chooseLabel="Import"
-          className="p-mr-2 p-d-inline-block"
-          onUpload={importCSV}
-        />
         <Button
           label="Export"
           icon="pi pi-upload"

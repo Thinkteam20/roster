@@ -71,7 +71,7 @@ function SchedulerB() {
       console.log("get data from events B", logs);
       setEventCal(JSON.parse(logs));
     });
-  }, [setWorkEmp]);
+  }, [workemp, events]);
 
   const recronizedId = () => {
     let GroupId = "";
@@ -310,6 +310,11 @@ function SchedulerB() {
           className="p-button-danger"
           onClick={openNewEvent}
         />
+        <Button
+          label="Clear Events"
+          className="p-button-"
+          onClick={clearEvents}
+        />
       </div>
       <Toast ref={toast} />
       <FullCalendar
@@ -318,7 +323,7 @@ function SchedulerB() {
         weekNumberCalculation="ISO"
         timeZone="UTC"
         ref={calenderRef}
-        slotMinTime="07:00:00"
+        slotMinTime="05:00:00"
         slotMaxTime="17:00:00"
         plugins={[
           resourceTimeGridPlugin,
@@ -340,7 +345,7 @@ function SchedulerB() {
         resources={column}
         customButtons={{
           custom: {
-            text: "Iffice",
+            text: "shop&week",
             views: {
               week: {
                 type: "timeline",
@@ -360,10 +365,14 @@ function SchedulerB() {
         }}
         editable="true"
         events={eventCal}
+        // eventClick={function () {
+        //   alert("clicked!");
+        //   window.open("", "MsgWindow", "width=200,height=100");
+        // }}
         headerToolbar={{
           left: "prev next",
           center: "title",
-          right: "custom,timeGridWeek",
+          right: "timeGridWeek,custom",
         }}
       />
     </>

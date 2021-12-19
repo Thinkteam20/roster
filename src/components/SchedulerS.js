@@ -73,7 +73,7 @@ function SchedulerS() {
       console.log("get data from events S", logs);
       setEventCal(JSON.parse(logs));
     });
-  }, []);
+  }, [workemp, events]);
 
   const recronizedId = () => {
     let GroupId = "";
@@ -125,7 +125,7 @@ function SchedulerS() {
       console.log(_event.weekday);
       console.log(_event);
       _events.push(_event);
-      ipcRenderer.send("events:add", _events);
+      ipcRenderer.send("events2:add", _events);
       setEvents(_events);
       toast.current.show({
         severity: "success",
@@ -320,7 +320,7 @@ function SchedulerS() {
         weekNumberCalculation="ISO"
         timeZone="UTC"
         ref={calenderRef}
-        slotMinTime="07:00:00"
+        slotMinTime="05:00:00"
         slotMaxTime="17:00:00"
         plugins={[
           resourceTimeGridPlugin,
@@ -342,7 +342,7 @@ function SchedulerS() {
         resources={column}
         customButtons={{
           custom: {
-            text: "Iffice",
+            text: "shop&week",
             views: {
               week: {
                 type: "timeline",
@@ -365,7 +365,7 @@ function SchedulerS() {
         headerToolbar={{
           left: "prev next",
           center: "title",
-          right: "custom,timeGridWeek",
+          right: "timeGridWeek,custom",
         }}
       />
     </>

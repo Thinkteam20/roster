@@ -27,8 +27,8 @@ if (
 
 function createMainWindow() {
   mainWindow = new BrowserWindow({
-    width: 1100,
-    height: 800,
+    width: 1500,
+    height: 1000,
     show: false,
     icon: "./assets/icon.png",
     webPreferences: {

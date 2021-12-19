@@ -27,22 +27,6 @@ function RegCus() {
   const [response, setResponse] = useState([]);
   const [dataNumber, setDatanNumber] = useState();
 
-  let testlogs = {
-    title: "Versace",
-    id: "1",
-    site: "Versace",
-    roles: "Auditorium A",
-    location: "123CBD",
-  };
-
-  let events = {
-    title: "Versace",
-    id: "1",
-    site: "Versace",
-    roles: "Auditorium A",
-    location: "123CBD",
-  };
-
   let emptyProduct = {
     title: "",
     id: "",
@@ -286,13 +270,13 @@ function RegCus() {
           className="p-button-success p-mr-2"
           onClick={openNew}
         />
-        <Button
+        {/* <Button
           label="Delete"
           icon="pi pi-trash"
           className="p-button-danger"
           onClick={confirmDeleteSelected}
           disabled={!selectedProducts || !selectedProducts.length}
-        />
+        /> */}
       </React.Fragment>
     );
   };
@@ -300,7 +284,7 @@ function RegCus() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload
+        {/* <FileUpload
           mode="basic"
           name="demo[]"
           auto
@@ -309,7 +293,7 @@ function RegCus() {
           chooseLabel="Import"
           className="p-mr-2 p-d-inline-block"
           onUpload={importCSV}
-        />
+        /> */}
         <Button
           label="Export"
           icon="pi pi-upload"

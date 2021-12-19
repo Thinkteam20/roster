@@ -21,8 +21,8 @@ export const ReportSheet = () => {
   const toast = useRef(null);
 
   useEffect(() => {
-    ipcRenderer.send("events:load");
-    ipcRenderer.on("events:get", (e, logs) => {
+    ipcRenderer.send("events2:load");
+    ipcRenderer.on("events2:get", (e, logs) => {
       console.log("get data from events B", logs);
       setProducts(JSON.parse(logs));
     });
