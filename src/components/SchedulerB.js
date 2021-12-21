@@ -123,10 +123,9 @@ function SchedulerS() {
       _event.recronizedId = recronizedId();
       _event.weekday = setWeekday(_event.start);
       console.log(_event.weekday);
-      console.log(_event);
+      // console.log(_event);
       _events.push(_event);
       ipcRenderer.send("events:add", _events);
-      setEvents(_events);
       toast.current.show({
         severity: "success",
         summary: "Successful",
@@ -322,6 +321,14 @@ function SchedulerS() {
         ref={calenderRef}
         slotMinTime="05:00:00"
         slotMaxTime="17:00:00"
+        eventClick={function (info) {
+          let eventObj = info.event.title;
+          alert("event has been deleted");
+          // alert(eventObj.title);
+          ipcRenderer.send("event:delete", eventObj);
+          setEvents([...events]);
+          info.jsEvent.preventDefault();
+        }}
         plugins={[
           resourceTimeGridPlugin,
           resourceTimelineDay,

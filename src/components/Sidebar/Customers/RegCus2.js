@@ -316,7 +316,7 @@ function RegCus2() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        {/* <FileUpload
+        <FileUpload
           mode="basic"
           name="demo[]"
           auto
@@ -325,7 +325,7 @@ function RegCus2() {
           chooseLabel="Import"
           className="p-mr-2 p-d-inline-block"
           onUpload={importCSV}
-        /> */}
+        />
         <Button
           label="Export"
           icon="pi pi-upload"

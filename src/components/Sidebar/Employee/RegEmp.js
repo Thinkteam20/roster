@@ -15,6 +15,7 @@ import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import "./DataTableDemo.css";
+import * as XLSX from "xlsx";
 import HeaderTile from "../../Morecules/HeaderTile.js";
 import "../../../App.css";
 // import sendAsync from "../../../message-control/renderer.js";
@@ -25,6 +26,7 @@ function RegEmp() {
   const [loading, setLoading] = useState(false);
   const [response, setResponse] = useState([]);
   const [dataNumber, setDatanNumber] = useState();
+  const [Item, setItem] = useState([]);
 
   let testlogs = {
     text: "",
@@ -67,7 +69,7 @@ function RegEmp() {
       // setProducts(logs);
       setProducts(JSON.parse(logs));
     });
-  }, []);
+  }, [Item]);
 
   const sites = [
     { name: "Burberry - CBD Queens Plaza" },
@@ -185,7 +187,13 @@ function RegEmp() {
 
     return index;
   };
-
+  function ConvertKeysToLowerCase(obj) {
+    let output = {};
+    for (let i in obj) {
+      obj[i.toLowerCase()] = obj[i];
+    }
+    return JSON.stringify(output);
+  }
   const createId = () => {
     let id = "";
     let chars =
@@ -196,41 +204,32 @@ function RegEmp() {
     return id;
   };
 
-  const importCSV = (e) => {
-    const file = e.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const csv = e.target.result;
-      const data = csv.split("\n");
+  const readExel = (file) => {
+    const promise = new Promise((resolve, reject) => {
+      let fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(file);
+      fileReader.onload = (e) => {
+        const bufferArray = e.target.result;
 
-      // Prepare DataTable
-      const cols = data[0].replace(/['"]+/g, "").split(",");
-      data.shift();
+        const wb = XLSX.read(bufferArray, { type: "buffer" });
 
-      const importedData = data.map((d) => {
-        d = d.split(",");
-        const processedData = cols.reduce((obj, c, i) => {
-          c =
-            c === "Status"
-              ? "inventoryStatus"
-              : c === "Reviews"
-              ? "rating"
-              : c.toLowerCase();
-          obj[c] = d[i].replace(/['"]+/g, "");
-          (c === "price" || c === "rating") && (obj[c] = parseFloat(obj[c]));
-          return obj;
-        }, {});
+        const wsname = wb.SheetNames[0];
 
-        processedData["id"] = createId();
-        return processedData;
-      });
+        const ws = wb.Sheets[wsname];
 
-      const _products = [...products, ...importedData];
+        const data = XLSX.utils.sheet_to_json(ws);
 
-      setProducts(_products);
-    };
-
-    reader.readAsText(file, "UTF-8");
+        resolve(data);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+    promise.then((d) => {
+      // ConvertKeysToLowerCase(d);
+      console.log(d.map((data) => data));
+      // setProducts(d);
+    });
   };
 
   const exportCSV = () => {
@@ -261,21 +260,7 @@ function RegEmp() {
     setProduct(_product);
   };
 
-  const onTimeChange = (e) => {
-    let _product = { ...product };
-    _product["time"] = e.target.value;
-    setProduct(_product);
-  };
-
   const onInputChange = (e, name) => {
-    const val = (e.target && e.target.value) || "";
-    let _product = { ...product };
-    _product[`${name}`] = val;
-
-    setProduct(_product);
-  };
-
-  const onEmailChange = (e, email) => {
     const val = (e.target && e.target.value) || "";
     let _product = { ...product };
     _product[`${name}`] = val;
@@ -307,6 +292,16 @@ function RegEmp() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
+        <Button>
+          <input
+            type="file"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              readExel(file);
+            }}
+          />
+        </Button>
+
         <Button
           label="Export"
           icon="pi pi-upload"
@@ -355,14 +350,14 @@ function RegEmp() {
           ></Column>
 
           <Column
-            field="start"
+            field="Start"
             header="Start"
             sortable
             style={{ minWidth: "11rem" }}
           ></Column>
 
           <Column
-            field="end"
+            field="End"
             header="End"
             sortable
             style={{ minWidth: "11rem" }}
@@ -441,9 +436,7 @@ function RegEmp() {
 
   const statusBodyTemplate = (rowData) => {
     return (
-      <span
-        className={`product-badge status-${rowData.description.toLowerCase()}`}
-      >
+      <span className={`product-badge status-${rowData.description}`}>
         {rowData.description}
       </span>
     );
@@ -451,7 +444,7 @@ function RegEmp() {
 
   const statusBodyTemplateEmail = (rowData) => {
     return (
-      <span className={`product-badge status-${rowData.email.toLowerCase()}`}>
+      <span className={`product-badge status-${rowData.email}`}>
         {rowData.email}
       </span>
     );
@@ -742,6 +735,10 @@ function RegEmp() {
               )}
             </div>
           </Dialog>
+        </div>
+        <div>
+          <h1>testing</h1>
+          <p>{Item && JSON.stringify(Item)}</p>
         </div>
       </div>
     </section>

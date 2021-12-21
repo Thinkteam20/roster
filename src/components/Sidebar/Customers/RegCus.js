@@ -16,6 +16,7 @@ import { InputText } from "primereact/inputtext";
 import { Dropdown } from "primereact/dropdown";
 import "./DataTableDemo.css";
 import HeaderTile from "../../Morecules/HeaderTile.js";
+
 import "../../../App.css";
 
 // import sendAsync from "../../../message-control/renderer.js";
@@ -284,7 +285,7 @@ function RegCus() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        {/* <FileUpload
+        <FileUpload
           mode="basic"
           name="demo[]"
           auto
@@ -293,7 +294,7 @@ function RegCus() {
           chooseLabel="Import"
           className="p-mr-2 p-d-inline-block"
           onUpload={importCSV}
-        /> */}
+        />
         <Button
           label="Export"
           icon="pi pi-upload"

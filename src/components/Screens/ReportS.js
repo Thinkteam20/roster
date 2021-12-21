@@ -9,7 +9,7 @@ function ReportS() {
   return (
     <>
       <div id="emp-landing" className="section section__container">
-        <HeaderTile tileTitle="Report" tileName="" before="/" next="/rep" />
+        <HeaderTile tileTitle="Report" tileName="" before="/rosterS" next="/" />
         <h1>Report</h1>
         <div className="exp">
           <ReportSheet />

@@ -13,8 +13,6 @@ const { constants } = require("buffer");
 const { nextTick } = require("process");
 const { sendEmail } = require("./models/nodemailer");
 
-
-
 // db connect
 connectDb().then(console.log("MongoDB connected!")).catch(console.error);
 let mainWindow;
@@ -28,8 +26,6 @@ if (
 }
 
 function createMainWindow() {
-  
-
   mainWindow = new BrowserWindow({
     width: 1500,
     height: 1000,
@@ -39,8 +35,6 @@ function createMainWindow() {
       nodeIntegration: true,
     },
   });
-
-
 
   let indexPath;
 
@@ -324,6 +318,15 @@ ipcMain.on("events:add", async (e, item) => {
   try {
     await Event.create(item);
     sendCusb();
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+ipcMain.on("event:delete", async (e, title) => {
+  try {
+    console.log(title);
+    await Event.findOneAndDelete({ title: title });
   } catch (err) {
     console.log(err);
   }
