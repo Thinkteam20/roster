@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 const path = require("path");
 
-const sendEmail = (email) => {
+const sendEmail2 = (email) => {
   let stmpTransport = nodemailer.createTransport({
     service: "outlook",
     auth: {
@@ -18,9 +18,9 @@ const sendEmail = (email) => {
     // html: params.html, // html body
     attachments: [
       {
-        filename: "weekly-roster-iffice-Brisbane.pdf", // <= Here: made sure file name match
+        filename: "weekly-roster-iffice-Sydney.pdf", // <= Here: made sure file name match
         path: path.join(
-          "/Users/sangpiljung/Downloads/weekly-roster-iffice-Brisbane.pdf"
+          "/Users/sangpiljung/Downloads/weekly-roster-iffice-Sydney.pdf"
         ), // <= Here
         contentType: "application/pdf",
       },
@@ -37,4 +37,4 @@ const sendEmail = (email) => {
   });
 };
 
-module.exports = { sendEmail };
+module.exports = { sendEmail2 };

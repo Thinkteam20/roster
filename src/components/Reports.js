@@ -136,7 +136,7 @@ export const ReportSheet = () => {
       import("jspdf-autotable").then(() => {
         const doc = new jsPDF.default(0, 0);
         doc.autoTable(exportColumns, products);
-        doc.save("weekly-roster-iffice.pdf");
+        doc.save("weekly-roster-iffice-Brisbane.pdf");
       });
     });
   };

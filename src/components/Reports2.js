@@ -23,7 +23,7 @@ export const ReportSheet = () => {
   useEffect(() => {
     ipcRenderer.send("events2:load");
     ipcRenderer.on("events2:get", (e, logs) => {
-      console.log("get data from events B", logs);
+      console.log("get data from events S", logs);
       setProducts(JSON.parse(logs));
     });
   }, [selectedImportedData]);
@@ -136,7 +136,7 @@ export const ReportSheet = () => {
       import("jspdf-autotable").then(() => {
         const doc = new jsPDF.default(0, 0);
         doc.autoTable(exportColumns, products);
-        doc.save("weekly-roster-iffice.pdf");
+        doc.save("weekly-roster-iffice-Sydney.pdf");
       });
     });
   };

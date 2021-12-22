@@ -12,6 +12,7 @@ const Event2 = require("./models/events2");
 const { constants } = require("buffer");
 const { nextTick } = require("process");
 const { sendEmail } = require("./models/nodemailer");
+const { sendEmail2 } = require("./models/nodemailer2");
 
 // db connect
 connectDb().then(console.log("MongoDB connected!")).catch(console.error);
@@ -430,8 +431,14 @@ ipcMain.on("event2:delete", async (e, title) => {
 // ********************************************
 
 // Node email
-ipcMain.on("node:email", (e) => {
-  sendEmail();
+ipcMain.on("node:email", (e, products) => {
+  console.log(products);
+  sendEmail(products);
+});
+
+ipcMain.on("node:email2", (e, products) => {
+  console.log(products);
+  sendEmail2(products);
 });
 
 app.on("window-all-closed", () => {
