@@ -322,6 +322,14 @@ function SchedulerS() {
         ref={calenderRef}
         slotMinTime="05:00:00"
         slotMaxTime="17:00:00"
+        eventClick={function (info) {
+          let eventObj = info.event.title;
+          alert("event has been deleted");
+          // alert(eventObj.title);
+          ipcRenderer.send("event2:delete", eventObj);
+          setEvents([...events]);
+          info.jsEvent.preventDefault();
+        }}
         plugins={[
           resourceTimeGridPlugin,
           resourceTimelineDay,
@@ -331,7 +339,7 @@ function SchedulerS() {
           timeGridWeek,
         ]}
         // slotDuration={(days = 1)}
-        initialView="resourceTimelineDay"
+        initialView="resourceTimelineWeek"
         // slotDuration={"24:00:00"}
         allDayMaintainDuration={false}
         resourceGroupField="site"

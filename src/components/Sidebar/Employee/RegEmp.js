@@ -187,22 +187,33 @@ function RegEmp() {
 
     return index;
   };
-  function ConvertKeysToLowerCase(obj) {
-    let output = {};
-    for (let i in obj) {
-      obj[i.toLowerCase()] = obj[i];
-    }
-    return JSON.stringify(output);
-  }
-  const createId = () => {
-    let id = "";
-    let chars =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    for (let i = 0; i < 5; i++) {
-      id += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return id;
-  };
+
+  //   let output = {};
+  //   for (let i in obj) {
+  //     obj[i.toLowerCase()] = obj[i];
+  //   }
+  //   return JSON.stringify(output);
+  // };
+
+  // function ConvertKeysToLowerCase(obj) {
+  //   return new Promise((resolve, reject) => {
+  //     var output = {};
+  //     for (i in obj) {
+  //       if (Object.prototype.toString.apply(obj[i]) === "[object Object]") {
+  //         output[i.toLowerCase()] = ConvertKeysToLowerCase(obj[i]);
+  //       } else if (
+  //         Object.prototype.toString.apply(obj[i]) === "[object Array]"
+  //       ) {
+  //         output[i.toLowerCase()] = [];
+  //         output[i.toLowerCase()].push(ConvertKeysToLowerCase(obj[i][0]));
+  //       } else {
+  //         output[i.toLowerCase()] = obj[i];
+  //       }
+  //       resolve(output);
+  //     }
+  //     reject(new Error());
+  //   });
+  // }
 
   const readExel = (file) => {
     const promise = new Promise((resolve, reject) => {
@@ -227,8 +238,8 @@ function RegEmp() {
     });
     promise.then((d) => {
       // ConvertKeysToLowerCase(d);
-      console.log(d.map((data) => data));
-      // setProducts(d);
+      _products = setProducts(d);
+      ipcRenderer.send("logs:bulk", d);
     });
   };
 
@@ -350,14 +361,14 @@ function RegEmp() {
           ></Column>
 
           <Column
-            field="Start"
+            field="start"
             header="Start"
             sortable
             style={{ minWidth: "11rem" }}
           ></Column>
 
           <Column
-            field="End"
+            field="end"
             header="End"
             sortable
             style={{ minWidth: "11rem" }}

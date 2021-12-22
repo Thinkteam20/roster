@@ -114,10 +114,44 @@ ipcMain.on("logs:emp", async (e, item) => {
   }
 });
 
+// create xlsx emp bulk
+ipcMain.on("logs:bulk", async (e, emps) => {
+  console.log(emps);
+  try {
+    await Log.collection.insert(emps, async (err, docs) => {
+      if (err) {
+        return console.log(err);
+      } else {
+        console.log("Multiple emps inserted to Collection");
+      }
+    });
+    sendLogs();
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 ipcMain.on("logs2:emp", async (e, item) => {
   console.log(item);
   try {
     await Log2.create(item);
+    sendLogs2();
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+// Add bulk sydney
+ipcMain.on("logs2:bulk", async (e, emps) => {
+  console.log(emps);
+  try {
+    await Log2.collection.insert(emps, async (err, docs) => {
+      if (err) {
+        return console.log(err);
+      } else {
+        console.log("Multiple emps inserted to Collection");
+      }
+    });
     sendLogs2();
   } catch (err) {
     console.log(err);
@@ -214,6 +248,23 @@ ipcMain.on("cusb:update", async (e, _deleteTarget, updated) => {
     console.log(err);
   }
 });
+
+ipcMain.on("cusb:bulk", async (e, emps) => {
+  console.log(emps);
+  try {
+    await Cusb.collection.insert(emps, async (err, docs) => {
+      if (err) {
+        return console.log(err);
+      } else {
+        console.log("Multiple cusB inserted to Collection");
+      }
+    });
+    sendCusb();
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 // cusc CRUD
 async function sendCusc() {
   try {
@@ -240,6 +291,22 @@ ipcMain.on("cusc:delete", async (e, _id) => {
   try {
     console.log(_id);
     await Cusc.findOneAndDelete({ id: _id });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+ipcMain.on("cusc:bulk", async (e, emps) => {
+  console.log(emps);
+  try {
+    await Cusc.collection.insert(emps, async (err, docs) => {
+      if (err) {
+        return console.log(err);
+      } else {
+        console.log("Multiple cusB inserted to Collection");
+      }
+    });
+    sendCusc();
   } catch (err) {
     console.log(err);
   }
@@ -341,12 +408,20 @@ async function sendEvents2() {
   }
 }
 ipcMain.on("events2:load", sendEvents2);
-
 ipcMain.on("events2:add", async (e, item) => {
   console.log(item);
   try {
     await Event2.create(item);
     sendCusc();
+  } catch (err) {
+    console.log(err);
+  }
+});
+
+ipcMain.on("event2:delete", async (e, title) => {
+  try {
+    console.log(title);
+    await Event2.findOneAndDelete({ title: title });
   } catch (err) {
     console.log(err);
   }

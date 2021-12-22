@@ -126,6 +126,7 @@ function SchedulerS() {
       // console.log(_event);
       _events.push(_event);
       ipcRenderer.send("events:add", _events);
+      setEvents(_events);
       toast.current.show({
         severity: "success",
         summary: "Successful",
@@ -338,7 +339,7 @@ function SchedulerS() {
           timeGridWeek,
         ]}
         // slotDuration={(days = 1)}
-        initialView="resourceTimelineDay"
+        initialView="resourceTimelineWeek"
         // slotDuration={"24:00:00"}
         allDayMaintainDuration={false}
         resourceGroupField="site"

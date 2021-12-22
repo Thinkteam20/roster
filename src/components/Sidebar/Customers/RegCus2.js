@@ -17,6 +17,7 @@ import { Dropdown } from "primereact/dropdown";
 import "./DataTableDemo.css";
 import HeaderTile from "../../Morecules/HeaderTile.js";
 import "../../../App.css";
+import * as XLSX from "xlsx";
 
 // import sendAsync from "../../../message-control/renderer.js";
 // import addTable from "../../../message-control/addEmp.js";
@@ -207,41 +208,32 @@ function RegCus2() {
     return GroupId;
   };
 
-  const importCSV = (e) => {
-    const file = e.files[0];
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const csv = e.target.result;
-      const data = csv.split("\n");
-      console.log(csv, data);
-      // Prepare DataTable
-      const cols = data[0].replace(/['"]+/g, "").split(",");
-      data.shift();
-      console.log(cols);
-      const importedData = data.map((d) => {
-        d = d.split(",");
-        const processedData = cols.reduce((obj, c, i) => {
-          c =
-            c === "Status"
-              ? "inventoryStatus"
-              : c === "Reviews"
-              ? "rating"
-              : c.toLowerCase();
-          obj[c] = d[i].replace(/['"]+/g, "");
-          (c === "price" || c === "rating") && (obj[c] = parseFloat(obj[c]));
-          return obj;
-        }, {});
+  const readExel = (file) => {
+    const promise = new Promise((resolve, reject) => {
+      let fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(file);
+      fileReader.onload = (e) => {
+        const bufferArray = e.target.result;
 
-        processedData["id"] = createId();
-        return processedData;
-      });
+        const wb = XLSX.read(bufferArray, { type: "buffer" });
 
-      const _products = [...products, ...importedData];
+        const wsname = wb.SheetNames[0];
 
-      setProducts(_products);
-    };
+        const ws = wb.Sheets[wsname];
 
-    reader.readAsText(file, "UTF-8");
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        resolve(data);
+      };
+      fileReader.onerror = (error) => {
+        reject(error);
+      };
+    });
+    promise.then((d) => {
+      // ConvertKeysToLowerCase(d);
+      _products = setProducts(d);
+      ipcRenderer.send("cusc:bulk", d);
+    });
   };
 
   const exportCSV = () => {
@@ -316,16 +308,15 @@ function RegCus2() {
   const rightToolbarTemplate = () => {
     return (
       <React.Fragment>
-        <FileUpload
-          mode="basic"
-          name="demo[]"
-          auto
-          url="http://localhost:8080"
-          accept=".csv"
-          chooseLabel="Import"
-          className="p-mr-2 p-d-inline-block"
-          onUpload={importCSV}
-        />
+        <Button>
+          <input
+            type="file"
+            onChange={(e) => {
+              const file = e.target.files[0];
+              readExel(file);
+            }}
+          />
+        </Button>
         <Button
           label="Export"
           icon="pi pi-upload"
